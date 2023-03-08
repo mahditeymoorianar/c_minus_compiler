@@ -68,10 +68,6 @@ class Transition:
 
 
 class DFA:
-    # TODO: to implement the methods
-    # TODO: to define and/or set (needed) attributes
-    # TODO: to define and implement other methods for creating the dfa
-    # TODO: other needed things ...
     def __init__(self):
         self.initial_state = State(0)
         self.error_state = State(-1)
@@ -104,7 +100,6 @@ class DFA:
         :param character: inputted character which is a str in length of 1 ("len(character) = 1")
         :return: True if detects a token, False otherwise
         '''
-        # TODO:
         NonCharString.check(character)
         self.current_token_lexeme += character
         try:
@@ -118,6 +113,29 @@ class DFA:
             self.current_token_lexeme = "Invalid input"
             self.__store()
             return True
+
+    @staticmethod
+    def add_transition(keys: set, beginning_state_id: int, intended_state_id: int):
+        if beginning_state_id not in State.states.keys():
+            State(beginning_state_id)
+        if intended_state_id not in State.states.keys():
+            State(intended_state_id)
+        beginning_state: State = State.states[beginning_state_id]
+        beginning_state.add_transition(keys, intended_state_id)
+
+    @staticmethod
+    def make_state_terminal(state_id: int):
+        the_state: State = State.states[state_id]
+        the_state.is_terminal = True
+
+    @staticmethod
+    def make_state_non_terminal(state_id: int):
+        the_state: State = State.states[state_id]
+        the_state.is_terminal = False
+
+    @staticmethod
+    def add_state(state_id: int, is_terminal: bool = False):
+        State(state_id, is_terminal)
 
     def __store(self):
         '''
