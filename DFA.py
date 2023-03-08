@@ -42,7 +42,7 @@ class State:
             raise ExistingStateIdError(state_id)
         self.state_id = state_id
         self.transitions = []
-        State.states.pop(state_id, self)
+        State.states[state_id] = self
 
     def get_next_state(self, char: str):
         '''
@@ -85,12 +85,17 @@ class DFA:
         self.current_token_lexeme = ""
         self.current_state = self.initial_state
 
+    def clear(self):
+        State.states.clear()
+        self.initial_state = None
+        self.error_state = None
+
     def get_current_token(self) -> (int, str):
         '''
         :return: current token (the last detected token) in the form of (final_state: int, lexeme: str)
             NOTE that the current token might be an Error token
         '''
-        return self.last_tokens_final_state, self.last_token_lexeme
+        return self.last_tokens_final_state.state_id, self.last_token_lexeme
 
     def move(self, character: str) -> bool:
         '''
