@@ -74,6 +74,8 @@ class DFA:
     # TODO: other needed things ...
     def __init__(self):
         self.initial_state = State(0)
+        self.error_state = State(-1)
+
         self.current_state = self.initial_state
         self.current_token_lexeme = ""
         self.last_tokens_final_state = -1
@@ -103,6 +105,19 @@ class DFA:
         :return: True if detects a token, False otherwise
         '''
         # TODO:
+        NonCharString.check(character)
+        self.current_token_lexeme += character
+        try:
+            next_state:State = self.current_state.get_next_state(character)
+            self.current_state = next_state
+            if next_state.is_terminal:
+                self.__store()
+            return next_state.is_terminal
+        except InvalidCharacter:
+            self.current_state = self.error_state
+            self.current_token_lexeme = "Invalid input"
+            self.__store()
+            return True
 
     def __store(self):
         '''
