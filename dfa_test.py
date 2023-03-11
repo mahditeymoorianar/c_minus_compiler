@@ -1,8 +1,8 @@
 import unittest
 
-import DFA
-from DFA import DFA as Dfa
-from DFA import NonCharString
+import dfa
+from dfa import DFA as Dfa
+from dfa import NonCharString
 
 class MyTestCase(unittest.TestCase):
     def test1(self):
