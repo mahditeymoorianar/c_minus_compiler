@@ -2,6 +2,7 @@ import unittest
 
 import DFA
 from DFA import DFA as Dfa
+from DFA import NonCharString
 
 class MyTestCase(unittest.TestCase):
     def test1(self):
@@ -89,6 +90,14 @@ class MyTestCase(unittest.TestCase):
 
         dfa.move('c')
         self.assertEqual(dfa.get_current_token(), (-1, 'Invalid input'))
+
+        dfa.reset()
+        try:
+            dfa.move("ab")
+            self.assertEqual(False, True)
+        except NonCharString as error:
+            self.assertEqual(True, True)
+
 
 if __name__ == '__main__':
     unittest.main()
