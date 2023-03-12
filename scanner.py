@@ -31,7 +31,7 @@ class Scanner:
                 current_char = self.buffer.pop(0)
                 if self.dfa.move(current_char):
                     self.current_token = self.dfa.get_current_token()
-                    if self.current_token[0] in self.dfa.special_states:
+                    if self.dfa.if_special_states(self.current_token[0]):
                         self.buffer.insert(0, current_char)
                     return self.current_token
 
