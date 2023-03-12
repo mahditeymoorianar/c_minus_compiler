@@ -41,13 +41,14 @@ class ExistingStateIdError(ValueError):
 class State:
     states = {}
 
-    def __init__(self, state_id: int = 0, is_terminal: bool = False):
+    def __init__(self, state_id: int = 0, is_terminal: bool = False, look_ahead: bool = False):
         '''
         It creates a new State and adds it into the State.states: dict
 
         :param state_id:
         :raises ExistingStateIdError if the given id already exists.
         '''
+        self.look_ahead = look_ahead
         self.is_terminal = is_terminal
         if state_id in State.states.keys():
             raise ExistingStateIdError(state_id)
@@ -152,6 +153,16 @@ class DFA:
     @staticmethod
     def add_state(state_id: int, is_terminal: bool = False):
         State(state_id, is_terminal)
+
+    @staticmethod
+    def make_state_look_ahead(state_id: int):
+        the_state: State = State.states[state_id]
+        the_state.look_ahead = True
+
+    @staticmethod
+    def make_state_non_look_ahead(state_id: int):
+        the_state: State = State.states[state_id]
+        the_state.look_ahead = False
 
     def __store(self):
         '''
