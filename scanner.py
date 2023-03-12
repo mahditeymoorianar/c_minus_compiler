@@ -4,13 +4,16 @@ from keyword import Keyword
 
 
 class Scanner:
-    def __init__(self):
+    def __init__(self, file_name):
         self.dfa: dfa_lib.DFA
         self.__create_the_dfa()
         self.current_token: (TokenType, str) = TokenType.ERROR, "not implemented"
         self.state_types: dict = {}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
         self.keywords = {"if": Keyword.IF, "else": Keyword.ELSE, "void": Keyword.VOID, "int": Keyword.INT,
                          "repeat": Keyword.REPEAT, "until": Keyword.UNTIL, "return": Keyword.RETURN}
+        self.buffer_size = 1024  # size of each buffer in bytes
+        self.buffer = []
+        self.file = open(file_name, 'r')
 
     def get_next_token(self) -> (TokenType, str):
         """
@@ -18,9 +21,19 @@ class Scanner:
             till it detects a token and returns it as a tuple in the specified format.
         :return: (token_type: TokenType, token_lexeme: str)
         """
-        # TODO: to implement
-        self.current_token = TokenType.ERROR, "not implemented"
-        return self.current_token
+        while True:
+            if not self.buffer:
+                buff = self.file.read(self.buffer_size)  # read buffer_size bytes from file
+                if not buff:  # stop if end of file is reached
+                    self.buffer += '\0'
+                else:
+                    self.buffer += buff
+                current_char = self.buffer.pop(0)
+                if self.dfa.move(current_char):
+                    self.current_token = self.dfa.get_current_token()
+                    if self.current_token[0] in self.dfa.special_states:
+                        self.buffer.insert(0, current_char)
+                    return self.current_token
 
     def __detect_token_type(self, state_id: int, lexeme: str) -> TokenType:
         """
@@ -46,3 +59,12 @@ class Scanner:
         dfa = dfa_lib.DFA()
         # TODO: to create the dfa object and define the states and transitions
         self.dfa = dfa
+
+    def tokenize_file(self, file_name, symbol_table):
+        with open(file_name, 'r') as f:  # open file for binary reading mode
+            while True:
+                buffer = f.read(self.buffer_size)  # read buffer_size bytes from file
+                if not buffer:  # stop if end of file is reached
+                    break
+                chars = [char for char in buffer]  # separate buffer character by character
+                for char in chars:
