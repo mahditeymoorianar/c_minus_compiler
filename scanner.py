@@ -105,5 +105,9 @@ class Scanner:
         dfa.add_transition(dfa_lib.Charsets.other('/'), 17, 19)
         dfa.add_transition(dfa_lib.Charsets.symbol.difference('*/='), 0, 14)
         dfa.add_transition(dfa_lib.Charsets.whitespace, 0, 12)
-        
+
+        terminal_states = [18, 19, 14, 16, 2, 6, 15, 8, 10, 11, 12]
+        for s in terminal_states:
+            dfa.make_state_terminal(s)
+
         self.dfa = dfa
