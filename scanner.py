@@ -1,6 +1,6 @@
 import dfa as dfa_lib
 from token_type import TokenType
-from keyword import Keyword
+from modules.keyword import Keyword
 
 
 class Scanner:
