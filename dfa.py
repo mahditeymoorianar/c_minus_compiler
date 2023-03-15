@@ -164,6 +164,9 @@ class DFA:
         the_state: State = State.states[state_id]
         the_state.look_ahead = False
 
+    def is_special_state(state_id: int) -> bool:
+        return State.states[state_id].look_ahead
+
     def __store(self):
         '''
         This method stores the current token and must be called from the move method when it detects a token
