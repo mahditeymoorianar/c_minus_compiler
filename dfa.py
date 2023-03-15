@@ -6,7 +6,7 @@ class Charsets:
 
     @staticmethod
     def other(invalids: set) -> set:
-        return invalids.difference(invalids)
+        return Charsets.all.difference(invalids)
 
 
 class NonCharString(TypeError):
@@ -48,6 +48,7 @@ class State:
         :param state_id:
         :raises ExistingStateIdError if the given id already exists.
         '''
+        self.otherwise = None
         self.look_ahead = look_ahead
         self.is_terminal = is_terminal
         if state_id in State.states.keys():
@@ -67,9 +68,13 @@ class State:
         for transition in self.transitions:
             if char in transition.movements:
                 return transition.next_state
+        if self.otherwise is not None:
+            return State.states[self.otherwise]
         raise InvalidCharacter(self.state_id, char)
 
     def add_transition(self, keys: set, next_state_id: int):
+        if len(keys) == 0:
+            self.otherwise = next_state_id
         self.transitions.append(Transition(State.states[next_state_id], keys))
 
 

@@ -1,8 +1,9 @@
 import unittest
 
-import dfa
+import dfa as dfa_lib
 from dfa import DFA as Dfa
 from dfa import NonCharString
+
 
 class MyTestCase(unittest.TestCase):
     def test1(self):
@@ -57,7 +58,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(dfa.move('b'), False)
         self.assertEqual(dfa.move('a'), False)
         self.assertEqual(dfa.move('a'), True)
-        self.assertEqual(dfa.get_current_token(),   (4, 'aababbaaaabbaa'))
+        self.assertEqual(dfa.get_current_token(), (4, 'aababbaaaabbaa'))
 
         dfa.clear()
         del dfa
@@ -97,6 +98,39 @@ class MyTestCase(unittest.TestCase):
             self.assertEqual(False, True)
         except NonCharString as error:
             self.assertEqual(True, True)
+        dfa.clear()
+        del dfa
+
+    def test4(self):
+        dfa = Dfa()
+        dfa.add_transition(dfa_lib.Charsets.letter, 0, 3)
+        dfa.add_transition(dfa_lib.Charsets.digit, 0, 0)
+        dfa.add_transition("/", 0, 1)
+        dfa.add_transition("/", 1, 2)
+        dfa.add_transition(dfa_lib.Charsets.other("/"), 1, 0)
+        dfa.add_transition("\0", 2, 4)
+        dfa.add_transition('', 2, 2)
+        dfa.make_state_terminal(3)
+        dfa.make_state_terminal(4)
+
+        dfa.reset()
+        self.assertEqual(dfa.move('1'), False)
+        self.assertEqual(dfa.move('2'), False)
+        self.assertEqual(dfa.move('l'), True)
+        self.assertEqual(dfa.get_current_token(), (3, '12l'))
+        dfa.reset()
+        self.assertEqual(dfa.move('1'), False)
+        self.assertEqual(dfa.move('/'), False)
+        self.assertEqual(dfa.move('l'), False)
+        self.assertEqual(dfa.move('0'), False)
+        self.assertEqual(dfa.move('/'), False)
+        self.assertEqual(dfa.move('/'), False)
+        self.assertEqual(dfa.move('/'), False)
+        self.assertEqual(dfa.move('s'), False)
+        self.assertEqual(dfa.move('4'), False)
+        self.assertEqual(dfa.move('\0'), True)
+        self.assertEqual(dfa.get_current_token(), (4, '1/l0///s4\0'))
+
 
 
 if __name__ == '__main__':
