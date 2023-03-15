@@ -82,5 +82,28 @@ class Scanner:
         :return:
         """
         dfa = dfa_lib.DFA()
-        # TODO: to create the dfa object and define the states and transitions
+        dfa.add_transition(dfa_lib.Charsets.digit, 0, 1)
+        dfa.add_transition(dfa_lib.Charsets.digit, 1, 1)
+        dfa.add_transition(dfa_lib.Charsets.letter, 1, 16)
+        dfa.add_transition(dfa_lib.Charsets.other(dfa_lib.Charsets.letter), 1, 2)
+        dfa.add_transition('/', 0, 3)
+        dfa.add_transition('*', 3, 4)
+        dfa.add_transition('*', 4, 5)
+        dfa.add_transition('\0', 4, 15)
+        dfa.add_transition(dfa_lib.Charsets.other('*\0'), 4, 4)
+        dfa.add_transition('\0', 5, 15)
+        dfa.add_transition('/', 5, 6)
+        dfa.add_transition(dfa_lib.Charsets.other('/\0'), 5, 4)
+        dfa.add_transition(dfa_lib.Charsets.letter, 0, 7)
+        dfa.add_transition(dfa_lib.Charsets.letter.union(dfa_lib.Charsets.digit), 7, 7)
+        dfa.add_transition(dfa_lib.Charsets.other(dfa_lib.Charsets.letter.union(dfa_lib.Charsets.digit)), 7, 8)
+        dfa.add_transition('=', 0, 9)
+        dfa.add_transition('=', 9, 10)
+        dfa.add_transition(dfa_lib.Charsets.other('='), 9, 11)
+        dfa.add_transition('*', 0, 17)
+        dfa.add_transition('/', 17, 18)
+        dfa.add_transition(dfa_lib.Charsets.other('/'), 17, 19)
+        dfa.add_transition(dfa_lib.Charsets.symbol.difference('*/='), 0, 14)
+        dfa.add_transition(dfa_lib.Charsets.whitespace, 0, 12)
+        
         self.dfa = dfa
