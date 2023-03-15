@@ -2,8 +2,8 @@ class Charsets:
     digit = set("1234567890")
     letter = set("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")
     whitespace = set("\f\n\v\t\r ")
-    symbol = "-+=:;,[]{}()<*/\0"
-    all = digit.union(letter).union(whitespace).union(symbols)
+    symbol = set("-+=:;,[]{}()<*/\0")
+    all = digit.union(letter).union(whitespace).union(symbol)
 
     @staticmethod
     def other(invalids: set) -> set:
