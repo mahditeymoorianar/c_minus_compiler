@@ -90,7 +90,8 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(dfa.get_current_token(), (4, 'abbbaaba\0'))
 
         dfa.move('c')
-        self.assertEqual(dfa.get_current_token(), (-1, 'Invalid input'))
+        # self.assertEqual(dfa.get_current_token(), (-1, 'Invalid input'))
+        self.assertEqual(dfa.get_current_token(), (-1, 'abbbaaba\0c'))
 
         dfa.reset()
         try:

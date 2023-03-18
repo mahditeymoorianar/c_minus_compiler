@@ -126,14 +126,15 @@ class DFA:
         NonCharString.check(character)
         self.current_token_lexeme += character
         try:
-            next_state:State = self.current_state.get_next_state(character)
+            next_state: State = self.current_state.get_next_state(character)
             self.current_state = next_state
             if next_state.is_terminal:
                 self.__store()
             return next_state.is_terminal
         except InvalidCharacter:
             self.current_state = self.error_state
-            self.current_token_lexeme = "Invalid input"
+            # self.current_token_lexeme = "Invalid input"
+            self.current_state = self.error_state
             self.__store()
             return True
 

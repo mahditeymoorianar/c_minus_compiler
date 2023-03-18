@@ -9,7 +9,7 @@ class Scanner:
         self.__create_the_dfa()
         self.current_token: (TokenType, str) = TokenType.ERROR, "not implemented"
         self.state_dict = {18: 'Unmatched comment', 19: 'SYMBOL', 14: 'SYMBOL', 16: 'Invalid number', 2: 'NUM',
-                           6: 'COMMENT', 15: 'Unclosed comment', 8: 'ID/KW', 10: 'SYMBOL',
+                           6: 'COMMENT', 15: 'Unclosed comment', 8: 'ID/KW', 10: 'SYMBOL', -1: 'Invalid input',
                            11: 'SYMBOL'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
         self.keywords = {"if": Keyword.IF, "else": Keyword.ELSE, "void": Keyword.VOID, "int": Keyword.INT,
                          "repeat": Keyword.REPEAT, "until": Keyword.UNTIL, "return": Keyword.RETURN}
