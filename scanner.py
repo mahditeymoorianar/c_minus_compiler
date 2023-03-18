@@ -27,6 +27,7 @@ class Scanner:
             till it detects a token and returns it as a tuple in the specified format.
         :return: (token_type: TokenType, token_lexeme: str)
         """
+        self.dfa.reset()
         while True:
             if not self.buffer:
                 buff = self.file.read(self.buffer_size)  # read buffer_size bytes from file
