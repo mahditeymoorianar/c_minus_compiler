@@ -35,30 +35,33 @@ class Scanner:
                 else:
                     chars = [char for char in buff]
                     self.buffer += chars
-                current_char = self.buffer.pop(0)
-                if current_char == '\0':
-                    self.EOF = True
-                if current_char == '\n':
-                    self.NewLine = True
-                elif self.NewLine:      # transition point
-                    self.NewLine = False
-                    self.EOL = True
-                else:
-                    self.EOL = False
-                if self.dfa.move(current_char):
-                    self.current_token = self.dfa.get_current_token()
-                    state = self.current_token[0]
-                    lexeme = self.current_token[1]
-                    if state in self.special_states:
-                        self.buffer.insert(0, current_char)
-                    if state == 8:  # ID/KW
-                        if lexeme in self.keywords:
-                            state = 'KEYWORD'
-                        else:
-                            state = 'ID'
+            current_char = self.buffer.pop(0)
+            if current_char == '\0':
+                self.EOF = True
+            if current_char == '\n':
+                self.NewLine = True
+            elif self.NewLine:      # transition point
+                self.NewLine = False
+                self.EOL = True
+            else:
+                self.EOL = False
+            if self.dfa.move(current_char):
+                self.current_token = self.dfa.get_current_token()
+                state = self.current_token[0]
+                lexeme = self.current_token[1]
+                print(state)
+                print(lexeme)
+                print('*****')
+                if state in self.special_states:
+                    self.buffer.insert(0, current_char)
+                if state == 8:  # ID/KW
+                    if lexeme in self.keywords:
+                        state = 'KEYWORD'
                     else:
-                        state = self.state_dict.get(state)
-                    return state, lexeme
+                        state = 'ID'
+                else:
+                    state = self.state_dict.get(state)
+                return state, lexeme
 
     # def __detect_token_type(self, state_id: int, lexeme: str) -> TokenType:
     #     """
