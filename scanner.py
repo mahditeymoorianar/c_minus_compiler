@@ -10,9 +10,9 @@ class Scanner:
         self.current_token: (TokenType, str) = TokenType.ERROR, "not implemented"
         self.state_dict = {18: 'Unmatched comment', 19: 'SYMBOL', 14: 'SYMBOL', 16: 'Invalid number', 2: 'NUM',
                            6: 'COMMENT', 15: 'Unclosed comment', 8: 'ID/KW', 10: 'SYMBOL', -1: 'Invalid input',
-                           11: 'SYMBOL', 12: 'WHITESPACE'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
+                           11: 'SYMBOL', 12: 'WHITESPACE', 13: 'Invalid input'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
         self.keywords = ["break", "else", "if", "int","repeat", "return", "until", "void"]
-        self.special_states = {11, 8, 2, 19}
+        self.special_states = {11, 8, 2, 19, 13, 15}
         self.buffer_size = 1024  # size of each buffer in bytes
         self.buffer = []
         self.file = open(file_name, 'r')
@@ -70,7 +70,7 @@ class Scanner:
         dfa.add_transition(dfa_lib.Charsets.digit, 0, 1)
         dfa.add_transition(dfa_lib.Charsets.digit, 1, 1)
         dfa.add_transition(dfa_lib.Charsets.letter, 1, 16)
-        dfa.add_transition(dfa_lib.Charsets.other(dfa_lib.Charsets.letter), 1, 2)
+        dfa.add_transition(dfa_lib.Charsets.other(dfa_lib.Charsets.letter.union(dfa_lib.Charsets.digit)), 1, 2)
         dfa.add_transition('/', 0, 3)
         dfa.add_transition('*', 3, 4)
         dfa.add_transition('*', 4, 5)
@@ -88,10 +88,11 @@ class Scanner:
         dfa.add_transition('*', 0, 17)
         dfa.add_transition('/', 17, 18)
         dfa.add_transition(dfa_lib.Charsets.other('/'), 17, 19)
-        dfa.add_transition(dfa_lib.Charsets.symbol.difference('*/=\0'), 0, 14)
+        dfa.add_transition(dfa_lib.Charsets.symbol.difference('*/='), 0, 14)
         dfa.add_transition(dfa_lib.Charsets.whitespace, 0, 12)
+        dfa.add_transition(dfa_lib.Charsets.other('*'), 3, 13)
 
-        terminal_states = [18, 19, 14, 16, 2, 6, 15, 8, 10, 11, 12]
+        terminal_states = [18, 19, 14, 16, 2, 6, 15, 8, 10, 11, 12, 13]
         for s in terminal_states:
             dfa.make_state_terminal(s)
 
