@@ -37,10 +37,7 @@ class Scanner:
             current_char = self.buffer.pop(0)
             if current_char == '\0':
                 self.EOF = True
-            if current_char == '\n':
-                self.EOL = True
-            else:
-                self.EOL = False
+            self.EOL = False
             if self.dfa.move(current_char):
                 self.current_token = self.dfa.get_current_token()
                 state = self.current_token[0]
@@ -49,6 +46,8 @@ class Scanner:
                     self.buffer.insert(0, current_char)
                     lexeme = lexeme[:-1]
                 if state == 12:     # white space
+                    if current_char == '\n':
+                        self.EOL = True
                     return 'WHITESPACE', None
                 if state == 8:      # ID/KW
                     if lexeme in self.keywords:
