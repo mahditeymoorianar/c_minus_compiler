@@ -10,8 +10,8 @@ class Scanner:
         self.current_token: (TokenType, str) = TokenType.ERROR, "not implemented"
         self.state_dict = {18: 'Unmatched comment', 19: 'SYMBOL', 14: 'SYMBOL', 16: 'Invalid number', 2: 'NUM',
                            6: 'COMMENT', 15: 'Unclosed comment', 8: 'ID/KW', 10: 'SYMBOL', -1: 'Invalid input',
-                           11: 'SYMBOL'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
-        self.keywords = {"if", "else", "void", "int", "repeat", "until", "return"}
+                           11: 'SYMBOL', 12: 'WHITESPACE'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
+        self.keywords = ["break", "else", "if", "int","repeat", "return", "until", "void"]
         self.special_states = {11, 8, 2, 19}
         self.buffer_size = 1024  # size of each buffer in bytes
         self.buffer = []
@@ -49,14 +49,11 @@ class Scanner:
                 self.current_token = self.dfa.get_current_token()
                 state = self.current_token[0]
                 lexeme = self.current_token[1]
-                # print(state)
-                # print(lexeme)
-                # print('*****')
-                if state == 12:     # white space
-                    self.dfa.reset()
-                    continue
                 if state in self.special_states:
                     self.buffer.insert(0, current_char)
+                    lexeme = lexeme[:-1]
+                if state == 12:     # white space
+                    return 'WHITESPACE', None
                 if state == 8:      # ID/KW
                     if lexeme in self.keywords:
                         state = 'KEYWORD'
@@ -66,19 +63,6 @@ class Scanner:
                     state = self.state_dict.get(state)
                 return state, lexeme
 
-    # def __detect_token_type(self, state_id: int, lexeme: str) -> TokenType:
-    #     """
-    #     This method inputs a number as the state_id and detects what token_type does that state
-    #         specify based on the dfa. It also inputs a string as lexeme which is used to differentiate
-    #         the types KEYWORD and ID from each other.
-    #     :param state_id:
-    #     :param lexeme: It is used to differentiate the types KEYWORD and ID from each other.
-    #     :return: token_type: TokenType
-    #     """
-    #     state_type = self.state_types[state_id]
-    #     if state_type == TokenType.ID and lexeme in self.keywords.keys():
-    #         return TokenType.KEYWORD
-    #     return state_type
 
     def __create_the_dfa(self):
         """
