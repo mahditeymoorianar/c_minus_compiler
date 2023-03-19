@@ -11,8 +11,7 @@ class Scanner:
         self.state_dict = {18: 'Unmatched comment', 19: 'SYMBOL', 14: 'SYMBOL', 16: 'Invalid number', 2: 'NUM',
                            6: 'COMMENT', 15: 'Unclosed comment', 8: 'ID/KW', 10: 'SYMBOL', -1: 'Invalid input',
                            11: 'SYMBOL'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
-        self.keywords = {"if": Keyword.IF, "else": Keyword.ELSE, "void": Keyword.VOID, "int": Keyword.INT,
-                         "repeat": Keyword.REPEAT, "until": Keyword.UNTIL, "return": Keyword.RETURN}
+        self.keywords = {"if", "else", "void", "int", "repeat", "until", "return"}
         self.special_states = {11, 8, 2, 19}
         self.buffer_size = 1024  # size of each buffer in bytes
         self.buffer = []
@@ -50,12 +49,15 @@ class Scanner:
                 self.current_token = self.dfa.get_current_token()
                 state = self.current_token[0]
                 lexeme = self.current_token[1]
-                print(state)
-                print(lexeme)
-                print('*****')
+                # print(state)
+                # print(lexeme)
+                # print('*****')
+                if state == 12:     # white space
+                    self.dfa.reset()
+                    continue
                 if state in self.special_states:
                     self.buffer.insert(0, current_char)
-                if state == 8:  # ID/KW
+                if state == 8:      # ID/KW
                     if lexeme in self.keywords:
                         state = 'KEYWORD'
                     else:

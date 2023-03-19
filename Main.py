@@ -13,6 +13,8 @@ f_table = open("symbol_table.txt", "w")
 while not scanner.EOF:
     token = scanner.get_next_token()
     print(f'Main: {token[0]}')
+    print(f'Main: {token[1]}')
+    print('*******************')
     if token[0] in ['Unmatched comment', 'Invalid number', 'Unclosed comment', 'Invalid input']:
         f = f_err
         err = True
