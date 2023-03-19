@@ -18,7 +18,6 @@ class Scanner:
         self.file = open(file_name, 'r')
         self.EOF = False
         self.EOL = False
-        self.NewLine = False
 
     def get_next_token(self) -> (TokenType, str):
         """
@@ -39,9 +38,6 @@ class Scanner:
             if current_char == '\0':
                 self.EOF = True
             if current_char == '\n':
-                self.NewLine = True
-            elif self.NewLine:      # transition point
-                self.NewLine = False
                 self.EOL = True
             else:
                 self.EOL = False
