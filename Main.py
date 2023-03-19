@@ -2,8 +2,7 @@ from scanner import Scanner
 
 file_name = 'input.txt'
 scanner = Scanner(file_name)
-Sym_table = set()
-keywords = set()
+sym_table = []
 err = False
 num_lines = 0
 line_tok = ''
@@ -26,11 +25,9 @@ while not scanner.EOF:
             lexeme = token[1]
         line_err += f"({lexeme}, {token[0]}) "
     elif not (token[0] == 'WHITESPACE' or token[0] == 'COMMENT'):
-        if token[0] == 'ID':
-            Sym_table.add(token[1])
-        if token[0] == 'KEYWORD':
-            keywords.add(token[1])
-        line_tok += f"({token[0]}, {token[1]})"
+        if token[0] == 'ID' and token[1] not in sym_table:
+            sym_table.append(token[1])
+        line_tok += f"({token[0]}, {token[1]}) "
     if scanner.EOL or scanner.EOF:
         num_lines += 1
         if line_tok:
@@ -44,9 +41,10 @@ if not err:
     f_err.write('There is no lexical error.')
 
 for i, tok in enumerate(scanner.keywords):
-    f_table.write(f'{i}.\t{tok}\n')
-for i, tok in enumerate(Sym_table):
-    f_table.write(f'{i}.\t{tok}\n')
+    f_table.write(f'{i+1}.\t{tok}\n')
+length = len(scanner.keywords)
+for i, tok in enumerate(sym_table):
+    f_table.write(f'{i+length+1}.\t{tok}\n')
 
 f_err.close()
 f_tok.close()
