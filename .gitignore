@@ -12,6 +12,10 @@ __pycache__/
 # input / output files
 *.txt
 
+# compressed files
+*.zip
+*.rar
+
 # Distribution / packaging
 .Python
 build/
