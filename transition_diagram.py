@@ -2,12 +2,15 @@ import scanner
 
 # TODO: Handle $ + Add panic mode + First and follow to detect errors early + tree
 
+Symbols = {} # name : object
 
 class Symbol:
-    def __init__(self, name, terminal, first):
+    def __init__(self, name, terminal, first, follow):
         self.name = name
         self.terminal = terminal
         self.first = first
+        self.follow = follow
+        # name of first and follow symbols
 # eps is also a symbol name
 
 class Transition_Diagram:
@@ -38,7 +41,7 @@ class Transition_Diagram:
 
     def transition(self):
         for transition_symbol in self.states[self.current_state]:
-            if self.current_token in transition_symbol.first:
+            if self.current_token in transition_symbol.first or ('EPS' in transition_symbol.first and self.current_token in transition_symbol.follow):
                 self.current_state = self.states[self.current_state][transition_symbol]
                 self.traversed_edge = transition_symbol
                 return True
@@ -51,21 +54,42 @@ class Parser:
         self.transition_diagrams = {}  # {name of diagram : object}
         self.diagram_stack = []
         self.current_diagram = None
+        self.current_token = None
+        self.EOF = False
 
     def run(self):
+        errors = []
         self.current_diagram = self.transition_diagrams['Program']  # the name of the start state
-        self.current_diagram.current_token = self.scanner.get_next_token()
+        self.current_token = self.scanner.get_next_token()
         self.diagram_stack.append(self.current_diagram)
-        while True:
+        while not self.EOF:
+            if self.current_diagram.name == 'Program' and self.current_token == '$':
+                break
             self.current_diagram = self.diagram_stack.pop()
-            self.current_diagram.transition()
-            if not self.current_diagram.current_state == 'FINAL':
-                edge = self.current_diagram.traversed_edge
-                if not edge.terminal:
-                    self.diagram_stack.append(self.transition_diagrams[edge])
+            self.current_diagram.current_token = self.current_token
+            if self.current_diagram.transition():
+                if not self.current_diagram.current_state == 'FINAL':
+                    edge = self.current_diagram.traversed_edge
+                    if not edge.terminal:
+                        self.diagram_stack.append(self.transition_diagrams[edge])
+                    else:
+                        self.current_token = self.scanner.get_next_token()
+                        self.diagram_stack.append(self.current_diagram)
+            else: #error
+                if self.current_token in Symbols[self.current_diagram.name].follow:
+                    errors.append(f'line : syntax error, missing {self.current_diagram.name}')
                 else:
-                    self.current_diagram.current_token = self.scanner.get_next_token()
-                    self.diagram_stack.append(self.current_diagram)
+                    errors.append(f'line : syntax error, illegal {self.current_token}')
+                self.current_token = self.scanner.get_next_token()
+                while self.current_token not in Symbols[self.current_diagram.name].follow:
+                    if self.current_token == '$':
+                        errors.append('line : syntax error, Unexpected EOF')
+                        self.EOF = True
+                    errors.append(f'line : syntax error, illegal {self.current_token}')
+                    self.current_token = self.scanner.get_next_token()
+
+
+
 
 
 parser = Parser(None)
