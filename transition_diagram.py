@@ -1,6 +1,6 @@
 import scanner
 
-# TODO: Handle $ + Add panic mode + First and follow to detect errors early + tree
+# TODO: Handle errors from scanner + tree
 
 Symbols = {} # name : object
 
@@ -62,7 +62,7 @@ class Parser:
     def run(self):
         errors = []
         self.current_diagram = self.transition_diagrams['Program']  # the name of the start state
-        self.current_token = self.scanner.get_next_token()
+        self.current_token = self.scanner.get_next_token()[0]
         self.diagram_stack.append(self.current_diagram)
         while not self.EOF:
             if self.current_diagram.name == 'Program' and self.current_token == '$':
@@ -75,20 +75,20 @@ class Parser:
                     if not edge.terminal:
                         self.diagram_stack.append(self.transition_diagrams[edge])
                     else:
-                        self.current_token = self.scanner.get_next_token()
+                        self.current_token = self.scanner.get_next_token()[0]
                         self.diagram_stack.append(self.current_diagram)
             else: #error
                 if self.current_token in Symbols[self.current_diagram.name].follow:
-                    errors.append(f'line : syntax error, missing {self.current_diagram.name}')
+                    errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.name}')
                 else:
-                    errors.append(f'line : syntax error, illegal {self.current_token}')
-                self.current_token = self.scanner.get_next_token()
+                    errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
+                self.current_token = self.scanner.get_next_token()[0]
                 while self.current_token not in Symbols[self.current_diagram.name].follow:
                     if self.current_token == '$':
-                        errors.append('line : syntax error, Unexpected EOF')
+                        errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
                         self.EOF = True
-                    errors.append(f'line : syntax error, illegal {self.current_token}')
-                    self.current_token = self.scanner.get_next_token()
+                    errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
+                    self.current_token = self.scanner.get_next_token()[0]
 
 
 
@@ -155,12 +155,3 @@ Symbol('Factor_zegond', {'(', 'NUM'}, {';', ',', ']', ')', '*'})
 Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
-
-
-
-
-
-
-d.add_state('1', ' Declaration-list', 'FINAL')
-parser.transition_diagrams['Program'] = d
-symbols = []

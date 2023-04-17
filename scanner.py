@@ -18,6 +18,7 @@ class Scanner:
         self.file = open(file_name, 'r')
         self.EOF = False
         self.EOL = False
+        self.line = 0
 
     def get_next_token(self) -> (TokenType, str):
         """
@@ -47,6 +48,7 @@ class Scanner:
                     lexeme = lexeme[:-1]
                 if state == 12:     # white space
                     if current_char == '\n':
+                        self.line += 1
                         self.EOL = True
                     return 'WHITESPACE', None
                 if state == 8:      # ID/KW
