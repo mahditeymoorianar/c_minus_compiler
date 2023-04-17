@@ -4,10 +4,14 @@ import scanner
 
 
 class Symbol:
-    def __init__(self, name, terminal, first):
+    def __init__(self, name: str, first, follow, terminal = None):
         self.name = name
-        self.terminal = terminal
+        if terminal is None:
+            self.terminal = name[0].islower()
+        else:
+            self.terminal = terminal
         self.first = first
+        self.follow = follow
 # eps is also a symbol name
 
 class Transition_Diagram:
@@ -72,6 +76,69 @@ parser = Parser(None)
 
 # Creating line 1 transition diagrams (sample)
 d = Transition_Diagram('Program')
+# initializing the states (Symbols) and their first and follow sets
+Symbol('Program', {'int', 'EPS'}, {'$'})
+Symbol('Declaration_list', {'int', 'EPS'},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'repeat', 'return', '$'})
+Symbol('Declaration', {'int'},
+       {'ID', ';', 'NUM', '(', 'int', '{', '}', 'break', 'if', 'repeat', 'return', '$'})
+Symbol('Declaration_initial', {'int'},
+       {';', '[', '(', ')', ','})
+Symbol('Declaration_prime', {'(', ';'},
+       {'ID', ';', 'NUM', '(', 'int', '{', '}', 'break', 'if', 'repeat', 'return', '$'})
+Symbol('Var_declaration_prime', {';'}, {'ID', ';', 'NUM', '(', 'int', '{', '}', 'break', 'if', 'repeat', 'return', '$'})
+Symbol('Fun_declaration_prime', {'('},
+       {'ID', ';', 'NUM', '(', 'int', '{', '}', 'break', 'if', 'repeat', 'return', '$'})
+Symbol('Type_specifier', {'int'}, {'ID'})
+Symbol('Params', {'int', 'void'}, {')'})
+Symbol('Param_list', {',', 'EPS'}, {')'})
+Symbol('Param', {'int'}, {')', ','})
+Symbol('Param_prime', {'[', 'EPS'}, {')', ','})
+Symbol('Compound_stmt', {'{'},
+       {'ID', ';', 'NUM', '(', 'int', '{', '}', 'break', 'if', 'else', 'repeat', 'until', 'return', '$'})
+Symbol('Statement_list', {'ID', ';', 'NUM', '(', '{', 'break', 'if', 'repeat', 'return', 'EPS'}, {'}'})
+Symbol('Statement', {'ID', ';', 'NUM', '(', '{', 'break', 'if', 'repeat', 'return'},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'else', 'repeat', 'untill', 'return'})
+Symbol('Expression_stmt', {'ID', ';', 'NUM', '(', 'break'},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'else', 'repeat', 'untill', 'return'})
+Symbol('Selection_stmt', {'if'},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'else', 'repeat', 'untill', 'return'})
+Symbol('Iteration_stmt', {'repeat'},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'else', 'repeat', 'untill', 'return'})
+Symbol('Return_stmt', {'return'},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'else', 'repeat', 'untill', 'return'})
+Symbol('Return_stmt_prime', {'ID', ';', 'NUM', '('},
+       {'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'else', 'repeat', 'untill', 'return'})
+Symbol('Expression', {'ID', 'NUM', '('}, {';', ']', ')', ','})
+Symbol('B', {'[', '(', '=', '<', '==', '+', '-', '*', 'EPS'}, {';', ']', ')', ','})
+Symbol('H', {'=', '<', '==', '+', '-', '*', 'EPS'}, {';', ']', ')', ','})
+Symbol('Simple_expression_zegond', {'NUM', '('}, {';', ']', ')', ','})
+Symbol('Simple_expression_prime', {'(', '<', '==', '+', '-', '*', '$'}, {';', ']', ')', ','})
+Symbol('C', {'<', '==', 'EPS'}, {';', ']', ')', ','})
+Symbol('Relop', {'<', '=='}, {'ID', 'NUM', '('})
+Symbol('Additive_expression', {'ID', 'NUM', '('}, {';', ']', ')', ','})
+Symbol('Additive_expression_prime', {'(', '+', '-', '*', 'EPS'}, {';', ']', ')', ',', '<', '=='})
+Symbol('Additive_expression_zegond', {'NUM', '('}, {';', ']', ')', ',', '<', '=='})
+Symbol('D', {'+', '-', 'EPS'}, {';', ']', ')', ',', '<', '=='})
+Symbol('Addop', {'+', '-'}, {'ID', 'NUM', '('})
+Symbol('Term', {'ID', 'NUM', '('}, {';', ',', ']', ')'})
+Symbol('Term_prime', {'(', '*', 'EPS'}, {';', ',', ']', ')'})
+Symbol('Term_zegond', {'NUM', '('}, {';', ',', ']', ')'})
+Symbol('G', {'*', 'EPS'}, {';', ',', ']', ')'})
+Symbol('Factor', {'ID', 'NUM', '('}, {';', ',', ']', ')', '*'})
+Symbol('Var_call_prime', {'[', '(', 'EPS'}, {';', ',', ']', ')', '*'})
+Symbol('Var_prime', {'[', 'EPS'}, {';', ',', ']', ')', '*'})
+Symbol('Factor_prime', {'(', 'EPS'}, {';', ',', ']', ')', '*'})
+Symbol('Factor_zegond', {'(', 'NUM'}, {';', ',', ']', ')', '*'})
+Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
+Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
+Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
+
+
+
+
+
+
 d.add_state('1', ' Declaration-list', 'FINAL')
 parser.transition_diagrams['Program'] = d
 symbols = []
