@@ -50,6 +50,8 @@ class Scanner:
                     if current_char == '\n':
                         self.line += 1
                         self.EOL = True
+                    if self.EOF:
+                        return 'EOF', '$'
                     return 'WHITESPACE', None
                 if state == 8:      # ID/KW
                     if lexeme in self.keywords:

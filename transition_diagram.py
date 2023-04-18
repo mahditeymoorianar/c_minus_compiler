@@ -1,11 +1,12 @@
-import scanner
+from scanner import Scanner
 
-# TODO: Handle errors from scanner + tree
+# TODO: tree
 
-Symbols = {} # name : object
+Symbols = {}  # name : object
+
 
 class Symbol:
-    def __init__(self, name: str, first, follow, terminal = None):
+    def __init__(self, name: str, first, follow, terminal=None):
         self.name = name
         if terminal is None:
             self.terminal = name[0].islower()
@@ -13,6 +14,8 @@ class Symbol:
             self.terminal = terminal
         self.first = first
         self.follow = follow
+
+
 # eps is also a symbol name
 
 class Transition_Diagram:
@@ -43,7 +46,8 @@ class Transition_Diagram:
 
     def transition(self):
         for transition_symbol in self.states[self.current_state]:
-            if self.current_token in transition_symbol.first or ('EPS' in transition_symbol.first and self.current_token in transition_symbol.follow):
+            if self.current_token in transition_symbol.first or (
+                    'EPS' in transition_symbol.first and self.current_token in transition_symbol.follow):
                 self.current_state = self.states[self.current_state][transition_symbol]
                 self.traversed_edge = transition_symbol
                 return True
@@ -77,7 +81,7 @@ class Parser:
                     else:
                         self.current_token = self.scanner.get_next_token()[0]
                         self.diagram_stack.append(self.current_diagram)
-            else: #error
+            else:  # error
                 if self.current_token in Symbols[self.current_diagram.name].follow:
                     errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.name}')
                 else:
@@ -89,12 +93,8 @@ class Parser:
                         self.EOF = True
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
                     self.current_token = self.scanner.get_next_token()[0]
+        return errors
 
-
-
-
-
-parser = Parser(None)
 
 # Creating line 1 transition diagrams (sample)
 d = Transition_Diagram('Program')
@@ -155,3 +155,18 @@ Symbol('Factor_zegond', {'(', 'NUM'}, {';', ',', ']', ')', '*'})
 Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
+
+file_name = 'input.txt'
+scanner = Scanner(file_name)
+err_file = open('syntax_errors.txt', 'w')
+parser = Parser(scanner)
+err = parser.run()
+if not err:
+    err_file.write('There is no syntax error.')
+else:
+    line = 0
+    for e in err:
+        err_file.write(e)
+        line += 1
+        if not line == len(err):
+            err_file.write('\n')
