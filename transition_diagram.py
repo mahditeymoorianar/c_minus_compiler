@@ -441,7 +441,7 @@ arg_list_prime_diagram.add_state('S0', 'EPS', 'FINAL')
 file_name = 'input.txt'
 scanner = Scanner(file_name)
 err_file = open('syntax_errors.txt', 'w')
-parser = Parser(scanner)
+parser = Parser(scanner, transition_diagrams)
 err = parser.run()
 if not err:
     err_file.write('There is no syntax error.')
