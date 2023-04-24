@@ -55,9 +55,9 @@ class Transition_Diagram:
 
 
 class Parser:
-    def __init__(self, scanner_module):
+    def __init__(self, scanner_module, transition_diagrams):
         self.scanner = scanner_module
-        self.transition_diagrams = {}  # {name of diagram : object}
+        self.transition_diagrams = transition_diagrams # {name of diagram : object}
         self.diagram_stack = []
         self.current_diagram = None
         self.current_token = None
@@ -155,10 +155,12 @@ Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
 
 
+transition_diagrams = {}
 # Creating transition diagrams
 # line 1
 program_diagram = Transition_Diagram('Program')
 program_diagram.add_state('S0', 'Declaration_list', 'FINAL')
+transition_diagrams['Program'] = program_diagram
 
 # line 2
 declaration_list_diagram = Transition_Diagram('Declaration_list')
