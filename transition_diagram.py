@@ -14,6 +14,7 @@ class Symbol:
             self.terminal = terminal
         self.first = first
         self.follow = follow
+        Symbols[name] = self
 
 
 # eps is also a symbol name
@@ -45,7 +46,9 @@ class Transition_Diagram:
         self.states[begin_state][edge_token] = end_state
 
     def transition(self):
+        print(self.states[self.current_state])
         for transition_symbol in self.states[self.current_state]:
+            transition_symbol = Symbols[transition_symbol]
             if self.current_token in transition_symbol.first or (
                     'EPS' in transition_symbol.first and self.current_token in transition_symbol.follow):
                 self.current_state = self.states[self.current_state][transition_symbol]
@@ -65,10 +68,12 @@ class Parser:
 
     def run(self):
         errors = []
+        self.transition_diagrams['Program'].current_state = 'S0'
         self.current_diagram = self.transition_diagrams['Program']  # the name of the start state
-        self.current_token = self.scanner.get_next_token()[0]
+        self.current_token = self.scanner.get_next_token()[1]
         self.diagram_stack.append(self.current_diagram)
         while not self.EOF:
+            print(self.current_diagram.name)
             if self.current_diagram.name == 'Program' and self.current_token == '$':
                 break
             self.current_diagram = self.diagram_stack.pop()
@@ -153,7 +158,6 @@ Symbol('Factor_zegond', {'(', 'NUM'}, {';', ',', ']', ')', '*'})
 Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
-
 
 transition_diagrams = {}
 # Creating transition diagrams
