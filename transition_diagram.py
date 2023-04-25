@@ -6,14 +6,19 @@ Symbols = {}  # name : object
 
 
 class Symbol:
-    def __init__(self, name: str, first, follow, terminal=None):
+    def __init__(self, name: str, first = None, follow = None, terminal=None):
         self.name = name
         if terminal is None:
             self.terminal = name[0].islower()
         else:
             self.terminal = terminal
-        self.first = first
+        if self.terminal:
+            self.first = [self.name]
+        else:
+            self.first = first
+
         self.follow = follow
+        Symbols[name] = self
 
 
 # eps is also a symbol name
@@ -153,6 +158,10 @@ Symbol('Factor_zegond', {'(', 'NUM'}, {';', ',', ']', ')', '*'})
 Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
+
+terminals = ['ID', 'NUM', ';', '(', ')', '[', ']', '{', '}', 'int', 'void', 'break', 'else', 'repeat', 'return', 'until']
+for t in terminals:
+    Symbol(t, terminal=True)
 
 
 transition_diagrams = {}
