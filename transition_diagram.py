@@ -167,21 +167,25 @@ declaration_list_diagram = Transition_Diagram('Declaration_list')
 declaration_list_diagram.add_state('S0', 'Declaration', 'S1')
 declaration_list_diagram.add_state('S1', 'Declaration_list', 'FINAL')
 declaration_list_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Declaration_list'] = declaration_list_diagram
 
 # line 3
 declaration_diagram = Transition_Diagram('Declaration')
 declaration_diagram.add_state('S0', 'Declaration_initial', 'S1')
 declaration_diagram.add_state('S1', 'Declaration_prime', 'FINAL')
+transition_diagrams['Declaration'] = declaration_diagram
 
 # line 4
 declaration_initial_diagram = Transition_Diagram('Declaration_initial')
 declaration_initial_diagram.add_state('S1', 'ID', 'FINAL')
 declaration_initial_diagram.add_state('S0', 'Type_specifier', 'S1')
+transition_diagrams['Declaration_initial'] = declaration_initial_diagram
 
 # line 5
 declaration_prime_diagram = Transition_Diagram('Declaration_prime')
 declaration_prime_diagram.add_state('S0', 'Fun_declaration_prime', 'FINAL')
 declaration_prime_diagram.add_state('S0', 'Var_declaration_prime', 'FINAL')
+transition_diagrams['Declaration_prime'] = declaration_prime_diagram
 
 # line 6
 var_declaration_prime_diagram = Transition_Diagram('Var_declaration_prime')
@@ -190,6 +194,7 @@ var_declaration_prime_diagram.add_state('S2', ']', 'S3')
 var_declaration_prime_diagram.add_state('S3', ';', 'FINAL')
 var_declaration_prime_diagram.add_state('S0', ';', 'FINAL')
 var_declaration_prime_diagram.add_state('S1', 'NUM', 'S2')
+transition_diagrams['Var_declaration_prime'] = var_declaration_prime_diagram
 
 # line 7
 fun_declaration_prime_diagram = Transition_Diagram('Fun_declaration_prime')
@@ -197,11 +202,13 @@ fun_declaration_prime_diagram.add_state('S0', '(', 'S1')
 fun_declaration_prime_diagram.add_state('S2', ')', 'S3')
 fun_declaration_prime_diagram.add_state('S1', 'Params', 'S2')
 fun_declaration_prime_diagram.add_state('S3', 'Compound_stmt', 'FINAL')
+transition_diagrams['Fun_declaration_prime'] = fun_declaration_prime_diagram
 
 # line 8
 type_specifier_diagram = Transition_Diagram('Type_specifier')
 type_specifier_diagram.add_state('S0','int', 'FINAL')
 type_specifier_diagram.add_state('S0','void', 'FINAL')
+transition_diagrams['Type_specifier'] = type_specifier_diagram
 
 # line 9
 params_diagram = Transition_Diagram('Params')
@@ -210,6 +217,7 @@ params_diagram.add_state('S1', 'ID', 'S2')
 params_diagram.add_state('S0', 'void', 'FINAL')
 params_diagram.add_state('S2', 'Param_prime', 'S3')
 params_diagram.add_state('S3', 'Param_list', 'FINAL')
+transition_diagrams['Params'] = params_diagram
 
 # line 10
 param_list_diagram = Transition_Diagram('Param_list')
@@ -217,17 +225,20 @@ param_list_diagram.add_state('S0', ',', 'S1')
 param_list_diagram.add_state('S1', 'Param', 'S2')
 param_list_diagram.add_state('S2', 'Param_list', 'FINAL')
 param_list_diagram.add_state('s0', 'EPS', 'FINAL')
+transition_diagrams['Param_list'] = param_list_diagram
 
 # line 11
 param_diagram = Transition_Diagram('Param')
 param_diagram.add_state('S0', 'Declaration_initial', 'S1')
 param_diagram.add_state('S1', 'Param_prime', 'FINAL')
+transition_diagrams['Param'] = param_diagram
 
 # line 12
 param_prime_diagram = Transition_Diagram('Param_prime')
 param_prime_diagram.add_state('S0', '[', 'S1')
 param_prime_diagram.add_state('S1', ']', 'FINAL')
 params_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Param_prime'] = param_prime_diagram
 
 # line 13
 compound_stmt_diagram = Transition_Diagram('Compound_stmt')
@@ -235,12 +246,14 @@ compound_stmt_diagram.add_state('S0', '{', 'S1')
 compound_stmt_diagram.add_state('S4', '}', 'FINAL')
 compound_stmt_diagram.add_state('S1', 'Declaration_list', 'S2')
 compound_stmt_diagram.add_state('S3', 'Statement_list', 'S4')
+transition_diagrams['Compound_stmt'] = compound_stmt_diagram
 
 # line 14
 statement_list_diagram = Transition_Diagram('Statement_list')
 statement_list_diagram.add_state('S0', 'Statement', 'S1')
 statement_list_diagram.add_state('S1', 'Statement_list', 'S2')
 statement_list_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Statement_list'] = statement_list_diagram
 
 # line 15
 statement_diagram = Transition_Diagram('Statement')
@@ -249,6 +262,7 @@ statement_diagram.add_state('S0', 'Compound_stmt', 'FINAL')
 statement_diagram.add_state('S0', 'Selection_stmt', 'FINAL')
 statement_diagram.add_state('S0', 'Iteration_stmt', 'FINAL')
 statement_diagram.add_state('S0', 'Return_stmt', 'FINAL')
+transition_diagrams['Statement'] = statement_diagram
 
 # line 16
 expression_stmt_diagram = Transition_Diagram('Expression_stmt')
@@ -256,6 +270,7 @@ expression_stmt_diagram.add_state('S0', 'break', 'S1')
 expression_stmt_diagram.add_state('S1', ';', 'FINAL')
 expression_stmt_diagram.add_state('S0', ';', 'FINAL')
 expression_stmt_diagram.add_state('S0', 'Expression', 'S1')
+transition_diagrams['Expression_stmt'] = expression_stmt_diagram
 
 # line 17
 selection_stmt_diagram = Transition_Diagram('Selection')
@@ -266,6 +281,7 @@ selection_stmt_diagram.add_state('S5', 'else', 'S6')
 selection_stmt_diagram.add_state('S2', 'Expression', 'S3')
 selection_stmt_diagram.add_state('S4', 'Statement', 'S5')
 selection_stmt_diagram.add_state('S6', 'Statement', 'S7')
+transition_diagrams['Selection'] = selection_stmt_diagram
 
 # line 18
 iteration_stmt_diagram = Transition_Diagram('Iteration')
@@ -274,23 +290,27 @@ iteration_stmt_diagram.add_state('S2', 'until', 'S3')
 iteration_stmt_diagram.add_state('S4', ')', 'FINAL')
 iteration_stmt_diagram.add_state('S1', 'Statement', 'S2')
 iteration_stmt_diagram.add_state('S3', 'Expression', 'S4')
+transition_diagrams['Iteration'] = iteration_stmt_diagram
 
 # line 19
 return_stmt_diagram = Transition_Diagram('Return_stmt')
 return_stmt_diagram.add_state('S0', 'return', 'S1')
 return_stmt_diagram.add_state('S1', 'Return_stmt_prime', 'FINAL')
+transition_diagrams['Return_stmt'] = return_stmt_diagram
 
 # line 20
 return_stmt_prime_diagram = Transition_Diagram('Return_stmt_prime')
 return_stmt_prime_diagram.add_state('S1', ';', 'FINAL')
 return_stmt_prime_diagram.add_state('S0', ';', 'FINAL')
 return_stmt_prime_diagram.add_state('S0', 'Expression', 'S1')
+transition_diagrams['Return_stmt_prime'] = return_stmt_prime_diagram
 
 # line 21
 expression_diagram = Transition_Diagram('Expression')
 expression_diagram.add_state('S0', 'ID', 'S1')
 expression_diagram.add_state('S1', 'B', 'FINAL')
 expression_diagram.add_state('S0', 'Simple_expression_zegond', 'FINAL')
+transition_diagrams['Expression'] = expression_diagram
 
 # line 22
 b_diagram = Transition_Diagram('B')
@@ -300,6 +320,7 @@ b_diagram.add_state('S0', '=', 'S4')
 b_diagram.add_state('S3', 'H', 'FINAL')
 b_diagram.add_state('S1', 'Expression', 'S2')
 b_diagram.add_state('S4', 'Expression', 'FINAL')
+transition_diagrams['B'] = b_diagram
 
 # line 23
 h_diagram = Transition_Diagram('H')
@@ -308,42 +329,50 @@ h_diagram.add_state('S0', 'G', 'S1')
 h_diagram.add_state('S1', 'D', 'S2')
 h_diagram.add_state('S2', 'C', 'FINAL')
 h_diagram.add_state('S3', 'Expression', 'FINAL')
+transition_diagrams['H'] = h_diagram
 
 # line 24
 simple_expression_zegond_diagram = Transition_Diagram('Simple_expression_zegond')
 simple_expression_zegond_diagram.add_state('S0', 'Additive_expression_zegond', 'S1')
 simple_expression_zegond_diagram.add_state('S1', 'C', 'FINAL')
+transition_diagrams['Simple_expression_zegond'] = simple_expression_zegond_diagram
 
 # line 25
 simple_expression_prime_diagram = Transition_Diagram('Simple_expression_prime')
 simple_expression_prime_diagram.add_state('S0', 'Additive_expression_prime', 'S1')
 simple_expression_prime_diagram.add_state('S1', 'C', 'FINAL')
+transition_diagrams['Simple_expression_prime'] = simple_expression_prime_diagram
 
 # line 26
 c_diagram = Transition_Diagram('C')
 c_diagram.add_state('S0', 'Relop', 'S1')
 c_diagram.add_state('S1', 'Additive_expression', 'FINAL')
 c_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['C'] = c_diagram
 
 # line 27
 relop_diagram = Transition_Diagram('Relop')
 relop_diagram.add_state('S0', '<', 'FINAL')
 relop_diagram.add_state('S0', '==', 'FINAL')
+transition_diagrams['Relop'] = relop_diagram
 
 # line 28
 additive_expression_diagram = Transition_Diagram('Additive_expression')
 additive_expression_diagram.add_state('S0', 'Term', 'S1')
 additive_expression_diagram.add_state('S1', 'D', 'FINAL')
+transition_diagrams['Additive_expression'] = additive_expression_diagram
 
 # line 29
 additive_expression_prime_diagram = Transition_Diagram('Additive_expression_prime')
 additive_expression_prime_diagram.add_state('S0', 'Term_prime', 'S1')
 additive_expression_prime_diagram.add_state('S1', 'D', 'FINAL')
+transition_diagrams['Additive_expression_prime'] = additive_expression_prime_diagram
 
 # line 30
 additive_expression_zegond_diagram = Transition_Diagram('Additive_expression_zegond')
 additive_expression_zegond_diagram.add_state('S0', 'Term_zegond', 'S1')
 additive_expression_zegond_diagram.add_state('S1', 'D', 'FINAL')
+transition_diagrams['Additive_expression_zegond'] = additive_expression_zegond_diagram
 
 # line 31
 d_diagram = Transition_Diagram('D')
@@ -351,26 +380,31 @@ d_diagram.add_state('S0', 'Addop', 'S1')
 d_diagram.add_state('S1', 'Term', 'S2')
 d_diagram.add_state('S2', 'D', 'FINAL')
 d_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['D'] = d_diagram
 
 # line 32
 addop_diagram = Transition_Diagram('Addop')
 addop_diagram.add_state('S0', '+', 'FINAL')
 addop_diagram.add_state('S0', '-', 'FINAL')
+transition_diagrams['Addop'] = addop_diagram
 
 # line 33
 term_diagram = Transition_Diagram('Term')
 term_diagram.add_state('S0', 'Factor', 'S1')
 term_diagram.add_state('S1', 'G', 'FINAL')
+transition_diagrams['Term'] = term_diagram
 
 # line 34
 term_diagram_prime = Transition_Diagram('Term_prime')
 term_diagram_prime.add_state('S0', 'Factor_prime', 'S1')
 term_diagram_prime.add_state('S1', 'G', 'FINAL')
+transition_diagrams['Term_prime'] = term_diagram_prime
 
 # line 35
 term_diagram_zegond = Transition_Diagram('Term_zegond')
 term_diagram_zegond.add_state('S0', 'Factor_zegond', 'S1')
 term_diagram_zegond.add_state('S1', 'G', 'FINAL')
+transition_diagrams['Term_zegond'] = term_diagram_zegond
 
 # line 36
 g_diagram = Transition_Diagram('G')
@@ -378,6 +412,7 @@ g_diagram.add_state('S0', '*', 'S1')
 g_diagram.add_state('S1', 'Factor', 'S2')
 g_diagram.add_state('S2', 'G', 'FINAL')
 g_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['G'] = g_diagram
 
 # line 37
 factor_diagram = Transition_Diagram('Factor')
@@ -387,6 +422,7 @@ factor_diagram.add_state('S0', 'ID', 'S3')
 factor_diagram.add_state('S0', 'NUM', 'FINAL')
 factor_diagram.add_state('S1', 'Expression', 'S2')
 factor_diagram.add_state('S3', 'Var_call_prime', 'FINAL')
+transition_diagrams['Factor'] = factor_diagram
 
 # line 38
 var_call_prime_diagram = Transition_Diagram('Var_call_prime')
@@ -394,6 +430,7 @@ var_call_prime_diagram.add_state('S0', '(', 'S1')
 var_call_prime_diagram.add_state('S2', ')', 'FINAL')
 var_call_prime_diagram.add_state('S1', 'Args', 'S2')
 var_call_prime_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Var_call_prime'] = var_call_prime_diagram
 
 # line 39
 var_prime_diagram = Transition_Diagram('Var_prime')
@@ -401,6 +438,7 @@ var_prime_diagram.add_state('S0', '[', 'S1')
 var_prime_diagram.add_state('S2', ']', 'FINAL')
 var_prime_diagram.add_state('S1', 'Expression', 'S2')
 var_prime_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Var_prime'] = var_prime_diagram
 
 # line 40
 factor_prime_diagram = Transition_Diagram('Factor_prime')
@@ -408,6 +446,7 @@ factor_prime_diagram.add_state('S0', '(', 'S1')
 factor_prime_diagram.add_state('S2', ')', 'FINAL')
 factor_prime_diagram.add_state('S1', 'Args', 'S2')
 factor_prime_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Factor_prime'] = factor_prime_diagram
 
 # line 41
 factor_zegond_diagram = Transition_Diagram('Factor_zegond')
@@ -415,16 +454,19 @@ factor_zegond_diagram.add_state('S0', '(', 'S1')
 factor_zegond_diagram.add_state('S2', ')', 'FINAL')
 factor_zegond_diagram.add_state('S0', 'NUM', 'FINAL')
 factor_zegond_diagram.add_state('S1', 'Expression', 'S2')
+transition_diagrams['Factor_zegond'] = factor_zegond_diagram
 
 # line 42
 args_diagram = Transition_Diagram('Args')
 args_diagram.add_state('S0', 'Arg_list', 'FINAL')
 args_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Args'] = args_diagram
 
 # line 43
 args_list_diagram = Transition_Diagram('Args_list')
 args_list_diagram.add_state('S0', 'Expression', 'S1')
 args_list_diagram.add_state('S1', 'Arg_list_prime', 'FINAL')
+transition_diagrams['Args_list'] = args_list_diagram
 
 # line 44
 arg_list_prime_diagram = Transition_Diagram('Arg_list_prime')
@@ -432,6 +474,7 @@ arg_list_prime_diagram.add_state('S0', ',', 'S1')
 arg_list_prime_diagram.add_state('S1', 'Expression', 'S2')
 arg_list_prime_diagram.add_state('S2', 'Arg_list_prime', 'FINAL')
 arg_list_prime_diagram.add_state('S0', 'EPS', 'FINAL')
+transition_diagrams['Arg_list_prime'] = arg_list_prime_diagram
 
 
 
