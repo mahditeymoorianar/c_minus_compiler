@@ -162,6 +162,9 @@ Symbol('Factor_zegond', {'(', 'NUM'}, {';', ',', ']', ')', '*'})
 Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
+terminals = ['ID', 'NUM', ';', '(', ')', '[', ']', '{', '}', 'int', 'void', 'break', 'else', 'repeat', 'return', 'until']
+for t in terminals:
+    Symbol(t, terminal=True)
 
 
 transition_diagrams = {}
