@@ -1,6 +1,6 @@
 from scanner import Scanner
 
-# TODO: tree
+# TODO: tree, lexical errors?
 
 Symbols = {}  # name : object
 
@@ -50,7 +50,6 @@ class Transition_Diagram:
         self.states[begin_state][edge_token] = end_state
 
     def transition(self):
-        print(self.states[self.current_state])
         for transition_symbol in self.states[self.current_state]:
             transition_symbol = Symbols[transition_symbol]
             if self.current_token in transition_symbol.first or (
@@ -74,10 +73,9 @@ class Parser:
         errors = []
         self.transition_diagrams['Program'].current_state = 'S0'
         self.current_diagram = self.transition_diagrams['Program']  # the name of the start state
-        self.current_token = self.scanner.get_next_token()[1]
+        self.current_token = self.scanner.get_next_token()
         self.diagram_stack.append(self.current_diagram)
         while not self.EOF:
-            print(self.current_diagram.name)
             if self.current_diagram.name == 'Program' and self.current_token == '$':
                 break
             self.current_diagram = self.diagram_stack.pop()
@@ -88,20 +86,20 @@ class Parser:
                     if not edge.terminal:
                         self.diagram_stack.append(self.transition_diagrams[edge])
                     else:
-                        self.current_token = self.scanner.get_next_token()[0]
+                        self.current_token = self.scanner.get_next_token()
                         self.diagram_stack.append(self.current_diagram)
             else:  # error
                 if self.current_token in Symbols[self.current_diagram.name].follow:
                     errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.name}')
                 else:
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
-                self.current_token = self.scanner.get_next_token()[0]
+                self.current_token = self.scanner.get_next_token()
                 while self.current_token not in Symbols[self.current_diagram.name].follow:
                     if self.current_token == '$':
                         errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
                         self.EOF = True
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
-                    self.current_token = self.scanner.get_next_token()[0]
+                    self.current_token = self.scanner.get_next_token()
         return errors
 
 

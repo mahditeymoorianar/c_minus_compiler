@@ -20,7 +20,16 @@ class Scanner:
         self.EOL = False
         self.line = 0
 
-    def get_next_token(self) -> (TokenType, str):
+    def get_next_token(self):
+        token, lexeme = self.body_get_next_token()
+        while token == 'WHITESPACE' or token == 'COMMENT':
+            token, lexeme = self.body_get_next_token()
+        if token == 'KEYWORD' or 'SYMBOL':
+            return lexeme
+        else:
+            return token
+
+    def body_get_next_token(self) -> (TokenType, str):
         """
         This method is called by other modules and reads from the file character by character
             till it detects a token and returns it as a tuple in the specified format.
