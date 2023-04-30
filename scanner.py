@@ -24,7 +24,7 @@ class Scanner:
         token, lexeme = self.body_get_next_token()
         while token == 'WHITESPACE' or token == 'COMMENT':
             token, lexeme = self.body_get_next_token()
-        if token == 'KEYWORD' or 'SYMBOL':
+        if token == 'KEYWORD' or token == 'SYMBOL' or token == 'EOF':
             return lexeme
         else:
             return token
