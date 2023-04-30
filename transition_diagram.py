@@ -1,4 +1,4 @@
-from scanner import Scanner
+from scanner import Scanner, Token
 from anytree import RenderTree
 from copy import deepcopy
 from DATA import make_diagrams, Transition_Diagram, Symbols, ParserNode
@@ -6,14 +6,9 @@ from DATA import make_diagrams, Transition_Diagram, Symbols, ParserNode
 
 # TODO: tree, lexical errors?
 
+all_nodes = []
 
 def transition(self):
-    print('**********')
-    print(self.name)
-    print(self.current_state)
-    print(self.current_token)
-    # print(self.states[self.current_state])
-    # print('**********')
     if self.current_state == 'FINAL':
         return 'FINAL'
     for transition_symbol in self.states[self.current_state]:
@@ -42,15 +37,23 @@ class Parser:
         self.transition_diagrams = transition_diagrams  # {name of diagram : object}
         self.diagram_stack = []
         self.current_diagram = None
+        self.current_token_full = None
         self.current_token = None
         self.EOF = False
         self.root = None
+
+    def tokenize(self, token):
+        if token.token == 'SYMBOL' or token.token == 'KEYWORD' or token.token == 'EOF':
+            return token.lexeme
+        else:
+            return token.token
 
     def run(self):
         errors = []
         self.transition_diagrams['Program'].current_state = 'S0'
         self.current_diagram = self.transition_diagrams['Program']  # the name of the start state
-        self.current_token = self.scanner.get_next_token()
+        self.current_token_full = self.scanner.get_next_token()
+        self.current_token = self.tokenize(self.current_token_full)
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
@@ -58,49 +61,52 @@ class Parser:
                 break
             self.current_diagram = self.diagram_stack[-1]
             if self.current_diagram.name == 'Program' and self.current_token == '$':
+                ParserNode('$', parent=self.current_diagram.parser_node)
                 break
-            # print(self.current_diagram.name, '***')
             self.current_diagram.current_token = self.current_token
             transition_res = self.current_diagram.transition()
             if transition_res == 'SUCCESS':
                 edge = self.current_diagram.traversed_edge
                 if edge == 'EPS':
-                    # ParserNode('epsilon', parent=self.current_diagram.parser_node)
+                    ParserNode('epsilon', parent=self.current_diagram.parser_node)
                     continue
                 elif edge.terminal:
-                    # ParserNode(edge.name, parent=self.current_diagram.parser_node)
-                    self.current_token = self.scanner.get_next_token()
+                    ParserNode(f"({self.current_token_full.token}, {self.current_token_full.lexeme})", parent=self.current_diagram.parser_node)
+                    self.current_token_full = self.scanner.get_next_token()
+                    self.current_token = self.tokenize(self.current_token_full)
                 else:
-                    # ParserNode(edge.name, parent=self.current_diagram.parser_node)
                     diagram_instance = deepcopy(self.transition_diagrams[edge.name])
                     diagram_instance.current_state = 'S0'
+                    diagram_instance.parser_node = ParserNode(edge.name, parent=self.current_diagram.parser_node)
                     self.diagram_stack.append(diagram_instance)
             elif transition_res == 'FINAL':
                 self.diagram_stack.pop()
             else:  # error
-                # print('%%%%%%%%%%%%%')
-                # print(self.current_diagram.name)
-                # print(self.current_diagram.current_state)
-                # print(self.current_token)
-                # print(self.current_diagram.traversed_edge.name)
-                # print('%%%%%%%%%%%%%')
                 if self.current_token in Symbols[self.current_diagram.name].follow:
                     errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.name}')
                 else:
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
-                self.current_token = self.scanner.get_next_token()
+                self.current_token_full = self.scanner.get_next_token()
+                self.current_token = self.tokenize(self.current_token_full)
                 while self.current_token not in Symbols[self.current_diagram.name].follow:
+                    print(self.current_token)
+                    print('*****')
                     if self.current_token == '$':
                         errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
                         self.EOF = True
+                        break
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
-                    self.current_token = self.scanner.get_next_token()
+                    self.current_token_full = self.scanner.get_next_token()
+                    self.current_token = self.tokenize(self.current_token_full)
+                    print(self.current_token)
+
         return errors
 
 
 file_name = 'input.txt'
 scanner = Scanner(file_name)
 err_file = open('syntax_errors.txt', 'w')
+tree_file = open('parse_tree.txt', 'wb')
 parser = Parser(scanner, make_diagrams())
 err = parser.run()
 if not err:
@@ -113,4 +119,5 @@ else:
         if not line == len(err):
             err_file.write('\n')
 
-# print(RenderTree(parser.root))
+tree_file.write(format(RenderTree(parser.root)).encode("UTF-8"))
+tree_file.close()

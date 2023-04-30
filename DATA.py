@@ -9,10 +9,6 @@ class ParserNode(Node):
         self.name = name
         self.parent = parent
 
-    # def add_child(self, item):
-    #     print(len(self.children))
-    #     self.children = list(self.children) + [item]
-
     def __repr__(self):
         return self.name
 
@@ -164,7 +160,7 @@ def make_diagrams():
     transition_diagrams['Expression_stmt'] = expression_stmt_diagram
 
     # line 17
-    selection_stmt_diagram = Transition_Diagram('Selection')
+    selection_stmt_diagram = Transition_Diagram('Selection_stmt')
     selection_stmt_diagram.add_state('S0', 'if', 'S1')
     selection_stmt_diagram.add_state('S1', '(', 'S2')
     selection_stmt_diagram.add_state('S3', ')', 'S4')
@@ -172,15 +168,17 @@ def make_diagrams():
     selection_stmt_diagram.add_state('S2', 'Expression', 'S3')
     selection_stmt_diagram.add_state('S4', 'Statement', 'S5')
     selection_stmt_diagram.add_state('S6', 'Statement', 'S7')
-    transition_diagrams['Selection'] = selection_stmt_diagram
+    selection_stmt_diagram.add_state('S7', 'Statement', 'FINAL')
+    transition_diagrams['Selection_stmt'] = selection_stmt_diagram
 
     # line 18
     iteration_stmt_diagram = Transition_Diagram('Iteration_stmt')
     iteration_stmt_diagram.add_state('S0', 'repeat', 'S1')
     iteration_stmt_diagram.add_state('S2', 'until', 'S3')
-    iteration_stmt_diagram.add_state('S4', ')', 'FINAL')
+    iteration_stmt_diagram.add_state('S3', '(', 'S4')
+    iteration_stmt_diagram.add_state('S5', ')', 'FINAL')
     iteration_stmt_diagram.add_state('S1', 'Statement', 'S2')
-    iteration_stmt_diagram.add_state('S3', 'Expression', 'S4')
+    iteration_stmt_diagram.add_state('S4', 'Expression', 'S5')
     transition_diagrams['Iteration_stmt'] = iteration_stmt_diagram
 
     # line 19
@@ -321,7 +319,7 @@ def make_diagrams():
     var_call_prime_diagram.add_state('S0', '(', 'S1')
     var_call_prime_diagram.add_state('S2', ')', 'FINAL')
     var_call_prime_diagram.add_state('S1', 'Args', 'S2')
-    var_call_prime_diagram.add_state('S0', 'EPS', 'FINAL')
+    var_call_prime_diagram.add_state('S0', 'Var_prime', 'FINAL')
     transition_diagrams['Var_call_prime'] = var_call_prime_diagram
 
     # line 39
@@ -449,6 +447,6 @@ Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg_list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg_list_prime', {',', 'EPS'}, {')'})
 terminals = ['ID', 'NUM', ';', ':', ',', '+', '-', '*', '=', '<', '==', '(', ')', '[', ']', '{', '}', 'int', 'void',
-             'break', 'else', 'repeat', 'return', 'until']
+             'break', 'else', 'repeat', 'return', 'until', 'if']
 for t in terminals:
     Symbol(t, terminal=True)

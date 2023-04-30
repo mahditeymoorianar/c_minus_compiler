@@ -1,6 +1,11 @@
 import dfa as dfa_lib
 from token_type import TokenType
-from modules.keyword import Keyword
+
+
+class Token:
+    def __init__(self, token, lexeme):
+        self.token = token
+        self.lexeme = lexeme
 
 
 class Scanner:
@@ -10,8 +15,9 @@ class Scanner:
         self.current_token: (TokenType, str) = TokenType.ERROR, "not implemented"
         self.state_dict = {18: 'Unmatched comment', 19: 'SYMBOL', 14: 'SYMBOL', 16: 'Invalid number', 2: 'NUM',
                            6: 'COMMENT', 15: 'Unclosed comment', 8: 'ID/KW', 10: 'SYMBOL', -1: 'Invalid input',
-                           11: 'SYMBOL', 12: 'WHITESPACE', 13: 'Invalid input'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
-        self.keywords = ["break", "else", "if", "int","repeat", "return", "until", "void"]
+                           11: 'SYMBOL', 12: 'WHITESPACE',
+                           13: 'Invalid input'}  # {STATE_ID: TOKEN_TYPE} and for keywords also we use ID in this dictionary
+        self.keywords = ["break", "else", "if", "int", "repeat", "return", "until", "void"]
         self.special_states = {11, 8, 2, 19, 13, 15}
         self.buffer_size = 1024  # size of each buffer in bytes
         self.buffer = []
@@ -24,10 +30,7 @@ class Scanner:
         token, lexeme = self.body_get_next_token()
         while token == 'WHITESPACE' or token == 'COMMENT':
             token, lexeme = self.body_get_next_token()
-        if token == 'KEYWORD' or token == 'SYMBOL' or token == 'EOF':
-            return lexeme
-        else:
-            return token
+        return Token(token, lexeme)
 
     def body_get_next_token(self) -> (TokenType, str):
         """
@@ -55,14 +58,14 @@ class Scanner:
                 if state in self.special_states:
                     self.buffer.insert(0, current_char)
                     lexeme = lexeme[:-1]
-                if state == 12:     # white space
+                if state == 12:  # white space
                     if current_char == '\n':
                         self.line += 1
                         self.EOL = True
                     if self.EOF:
                         return 'EOF', '$'
                     return 'WHITESPACE', None
-                if state == 8:      # ID/KW
+                if state == 8:  # ID/KW
                     if lexeme in self.keywords:
                         state = 'KEYWORD'
                     else:
@@ -70,7 +73,6 @@ class Scanner:
                 else:
                     state = self.state_dict.get(state)
                 return state, lexeme
-
 
     def __create_the_dfa(self):
         """
