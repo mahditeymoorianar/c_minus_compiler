@@ -11,9 +11,6 @@ all_nodes = []
 def transition(self):
     if self.current_state == 'FINAL':
         return 'FINAL'
-    print(self.states[self.current_state])
-    if self.name == 'Param_list':
-        print('KIR')
     for transition_symbol in self.states[self.current_state]:
         if transition_symbol == 'EPS':
             if self.current_token in Symbols[self.name].follow:
@@ -62,10 +59,6 @@ class Parser:
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
-            print(self.current_token)
-            print(self.current_diagram.name)
-            print(self.current_diagram.current_state)
-            print('***********')
             if self.EOF:
                 break
             self.current_diagram = self.diagram_stack[-1]
@@ -91,8 +84,6 @@ class Parser:
             elif transition_res == 'FINAL':
                 self.diagram_stack.pop()
             else:  # error
-                print(transition_res)
-                print('%%%%%%%%%%%%%')
                 if self.current_token == '$':
                     errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
                     self.EOF = True
