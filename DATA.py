@@ -109,9 +109,9 @@ def make_diagrams():
     # line 10
     param_list_diagram = Transition_Diagram('Param_list')
     param_list_diagram.add_state('S0', ',', 'S1')
-    param_list_diagram.add_state('S1', 'Param', 'S2')
+    param_list_diagram.add_state('S1', 'Params', 'S2')
     param_list_diagram.add_state('S2', 'Param_list', 'FINAL')
-    param_list_diagram.add_state('s0', 'EPS', 'FINAL')
+    param_list_diagram.add_state('S0', 'EPS', 'FINAL')
     transition_diagrams['Param_list'] = param_list_diagram
 
     # line 11
@@ -167,8 +167,7 @@ def make_diagrams():
     selection_stmt_diagram.add_state('S5', 'else', 'S6')
     selection_stmt_diagram.add_state('S2', 'Expression', 'S3')
     selection_stmt_diagram.add_state('S4', 'Statement', 'S5')
-    selection_stmt_diagram.add_state('S6', 'Statement', 'S7')
-    selection_stmt_diagram.add_state('S7', 'Statement', 'FINAL')
+    selection_stmt_diagram.add_state('S6', 'Statement', 'FINAL')
     transition_diagrams['Selection_stmt'] = selection_stmt_diagram
 
     # line 18
@@ -353,10 +352,10 @@ def make_diagrams():
     transition_diagrams['Args'] = args_diagram
 
     # line 43
-    args_list_diagram = Transition_Diagram('Args_list')
+    args_list_diagram = Transition_Diagram('Arg_list')
     args_list_diagram.add_state('S0', 'Expression', 'S1')
     args_list_diagram.add_state('S1', 'Arg_list_prime', 'FINAL')
-    transition_diagrams['Args_list'] = args_list_diagram
+    transition_diagrams['Arg_list'] = args_list_diagram
 
     # line 44
     arg_list_prime_diagram = Transition_Diagram('Arg_list_prime')

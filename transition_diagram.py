@@ -1,4 +1,4 @@
-from scanner import Scanner, Token
+from scanner import Scanner
 from anytree import RenderTree
 from copy import deepcopy
 from DATA import make_diagrams, Transition_Diagram, Symbols, ParserNode
@@ -11,15 +11,15 @@ all_nodes = []
 def transition(self):
     if self.current_state == 'FINAL':
         return 'FINAL'
-
+    print(self.states[self.current_state])
+    if self.name == 'Param_list':
+        print('KIR')
     for transition_symbol in self.states[self.current_state]:
         if transition_symbol == 'EPS':
             if self.current_token in Symbols[self.name].follow:
                 self.current_state = self.states[self.current_state]['EPS']
                 self.traversed_edge = 'EPS'
                 return 'SUCCESS'
-            else:
-                continue
         transition_symbol = Symbols[transition_symbol]
         if self.current_token in transition_symbol.first or (
                 'EPS' in transition_symbol.first and self.current_token in transition_symbol.follow):
@@ -62,6 +62,10 @@ class Parser:
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
+            print(self.current_token)
+            print(self.current_diagram.name)
+            print(self.current_diagram.current_state)
+            print('***********')
             if self.EOF:
                 break
             self.current_diagram = self.diagram_stack[-1]
@@ -87,6 +91,8 @@ class Parser:
             elif transition_res == 'FINAL':
                 self.diagram_stack.pop()
             else:  # error
+                print(transition_res)
+                print('%%%%%%%%%%%%%')
                 if self.current_token == '$':
                     errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
                     self.EOF = True
@@ -94,6 +100,7 @@ class Parser:
                     errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.traversed_edge.name}')
                 elif self.current_token in Symbols[self.current_diagram.name].follow:
                     errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.name}')
+                    self.diagram_stack.pop()
                 else:
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
                     self.current_token_full = self.scanner.get_next_token()
