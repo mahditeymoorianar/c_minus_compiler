@@ -4,13 +4,14 @@ from copy import deepcopy
 from DATA import make_diagrams, Transition_Diagram, Symbols, ParserNode
 
 
-# TODO: tree, lexical errors?
+# TODO: lexical errors?
 
 all_nodes = []
 
 def transition(self):
     if self.current_state == 'FINAL':
         return 'FINAL'
+
     for transition_symbol in self.states[self.current_state]:
         if transition_symbol == 'EPS':
             if self.current_token in Symbols[self.name].follow:
@@ -25,7 +26,11 @@ def transition(self):
             self.current_state = self.states[self.current_state][transition_symbol.name]
             self.traversed_edge = transition_symbol
             return 'SUCCESS'
-    return 'ERR'
+        elif not self.current_state == 'S0' and transition_symbol.terminal:
+            self.current_state = self.states[self.current_state][transition_symbol.name]
+            self.traversed_edge = transition_symbol
+            return 'ERR_T'
+    return 'ERR_NT'
 
 
 Transition_Diagram.transition = transition
@@ -82,23 +87,27 @@ class Parser:
             elif transition_res == 'FINAL':
                 self.diagram_stack.pop()
             else:  # error
-                if self.current_token in Symbols[self.current_diagram.name].follow:
+                if self.current_token == '$':
+                    errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
+                    self.EOF = True
+                elif transition_res == 'ERR_T':
+                    errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.traversed_edge.name}')
+                elif self.current_token in Symbols[self.current_diagram.name].follow:
                     errors.append(f'{self.scanner.line} : syntax error, missing {self.current_diagram.name}')
                 else:
                     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
-                self.current_token_full = self.scanner.get_next_token()
-                self.current_token = self.tokenize(self.current_token_full)
-                while self.current_token not in Symbols[self.current_diagram.name].follow:
-                    print(self.current_token)
-                    print('*****')
-                    if self.current_token == '$':
-                        errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
-                        self.EOF = True
-                        break
-                    errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
                     self.current_token_full = self.scanner.get_next_token()
                     self.current_token = self.tokenize(self.current_token_full)
-                    print(self.current_token)
+
+                # while self.current_token not in Symbols[self.current_diagram.name].follow:
+                #     if self.current_token == '$':
+                #         errors.append(f'{self.scanner.line} : syntax error, Unexpected EOF')
+                #         self.EOF = True
+                #         break
+                #     errors.append(f'{self.scanner.line} : syntax error, illegal {self.current_token}')
+                #     self.current_token_full = self.scanner.get_next_token()
+                #     self.current_token = self.tokenize(self.current_token_full)
+                #     print(self.current_token)
 
         return errors
 

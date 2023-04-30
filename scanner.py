@@ -24,7 +24,7 @@ class Scanner:
         self.file = open(file_name, 'r')
         self.EOF = False
         self.EOL = False
-        self.line = 0
+        self.line = 1
 
     def get_next_token(self):
         token, lexeme = self.body_get_next_token()
