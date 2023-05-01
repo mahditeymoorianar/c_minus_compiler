@@ -34,6 +34,8 @@ class Transition_Diagram:
         self.current_token = None
         self.traversed_edge = None
         self.parser_node = ParserNode(name=name, children=[])
+        self.first = None
+        self.follow = None
 
     def add_state(self, begin_state, edge_token, end_state):
         if begin_state not in self.states:
@@ -109,7 +111,7 @@ def make_diagrams():
     # line 10
     param_list_diagram = Transition_Diagram('Param-list')
     param_list_diagram.add_state('S0', ',', 'S1')
-    param_list_diagram.add_state('S1', 'Params', 'S2')
+    param_list_diagram.add_state('S1', 'Param', 'S2')
     param_list_diagram.add_state('S2', 'Param-list', 'FINAL')
     param_list_diagram.add_state('S0', 'EPS', 'FINAL')
     transition_diagrams['Param-list'] = param_list_diagram
@@ -124,7 +126,7 @@ def make_diagrams():
     param_prime_diagram = Transition_Diagram('Param-prime')
     param_prime_diagram.add_state('S0', '[', 'S1')
     param_prime_diagram.add_state('S1', ']', 'FINAL')
-    params_diagram.add_state('S0', 'EPS', 'FINAL')
+    param_prime_diagram.add_state('S0', 'EPS', 'FINAL')
     transition_diagrams['Param-prime'] = param_prime_diagram
 
     # line 13
@@ -365,6 +367,10 @@ def make_diagrams():
     arg_list_prime_diagram.add_state('S0', 'EPS', 'FINAL')
     transition_diagrams['Arg-list-prime'] = arg_list_prime_diagram
 
+    for name, diagram in transition_diagrams.items():
+        diagram.first = Symbols[name].first
+        diagram.follow = Symbols[name].follow
+
     return transition_diagrams
 
 
@@ -372,16 +378,9 @@ Symbols = {}  # name : object
 
 
 class Symbol:
-    def __init__(self, name: str, first=None, follow=None, terminal=None):
-        self.name = name.replace('_', '-')
-        if terminal is None:
-            self.terminal = name[0].islower()
-        else:
-            self.terminal = terminal
-        if self.terminal:
-            self.first = [self.name]
-        else:
-            self.first = first
+    def __init__(self, name: str, first=None, follow=None):
+        self.name = name
+        self.first = first
 
         self.follow = follow
         Symbols[name] = self
@@ -445,7 +444,13 @@ Symbol('Factor-zegond', {'(', 'NUM'}, {';', ',', ']', ')', '<', '==', '+', '-', 
 Symbol('Args', {'ID', 'NUM', '(', 'EPS'}, {')'})
 Symbol('Arg-list', {'ID', 'NUM', '('}, {')'})
 Symbol('Arg-list-prime', {',', 'EPS'}, {')'})
+
 terminals = ['ID', 'NUM', ';', ':', ',', '+', '-', '*', '=', '<', '==', '(', ')', '[', ']', '{', '}', 'int', 'void',
              'break', 'else', 'repeat', 'return', 'until', 'if']
-for t in terminals:
-    Symbol(t, terminal=True)
+
+
+def is_terminal(token):
+    if token in terminals:
+        return True
+    else:
+        return False
