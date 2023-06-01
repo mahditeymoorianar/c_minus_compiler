@@ -15,30 +15,42 @@ from codegen import CodeGen
 all_diagrams = make_diagrams()
 
 
-def enter_diagram(diagram_name, current_token):
+def enter_diagram(diagram_name, current_token, start='S0'):
     diagram = all_diagrams[diagram_name]
-    for transition_symbol in diagram.states['S0']:
+    edges = []
+    for i, transition_symbol in enumerate(diagram.states[start]):
+        if transition_symbol.startswith('#'):
+            edges.append((list(diagram.states[diagram.states[start][transition_symbol]].keys())[0], i))
+        else:
+            edges.append((transition_symbol, None))
+    res = None
+    res_num = None
+    for transition_symbol, idx in edges:
         if transition_symbol == 'EPS':
             if current_token in diagram.follow:
-                return 'EPS'
+                res = 'EPS'
+                res_num = idx
+                break
             else:
                 continue
         if is_terminal(transition_symbol):
             if transition_symbol == current_token:
-                return transition_symbol
+                res = transition_symbol
+                res_num = idx
+                break
+
             else:
                 continue
-        if transition_symbol.startswith('#'):
-            selected_function = getattr(code_generator, transition_symbol[1:])
-            # Call the selected function
-            selected_function()
-            return transition_symbol
         else:
             transition_symbol = all_diagrams[transition_symbol]
             if current_token in transition_symbol.first or (
                     'EPS' in transition_symbol.first and current_token in transition_symbol.follow):
-                return transition_symbol
-    return None
+                res = transition_symbol
+                res_num = idx
+                break
+    if not res_num == None:
+        res = list(diagram.states[start].keys())[res_num]
+    return res
 
 
 def transition(self):
@@ -50,6 +62,10 @@ def transition(self):
             if transition_symbol == 'EPS' or is_terminal(transition_symbol) or (type(transition_symbol) == type('#') and transition_symbol.startswith('#')):
                 self.current_state = self.states[self.current_state][transition_symbol]
                 self.traversed_edge = transition_symbol
+                if transition_symbol.startswith('#'):
+                    selected_function = getattr(code_generator, transition_symbol[1:])
+                    # Call the selected function
+                    selected_function()
             else:
                 self.current_state = self.states[self.current_state][transition_symbol.name]
                 self.traversed_edge = transition_symbol.name

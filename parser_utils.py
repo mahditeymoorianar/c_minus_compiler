@@ -262,7 +262,7 @@ def make_diagrams():
     b_diagram.add_state('S1', 'Expression', 'S2')
     b_diagram.add_state('S2', '#assign', 'FINAL')
     b_diagram.add_state('S0', '[', 'S3')
-    b_diagram.add_state('S1', 'Expression', 'S4')
+    b_diagram.add_state('S3', 'Expression', 'S4')
     b_diagram.add_state('S4', ']', 'S5')
     b_diagram.add_state('S5', '#parr', 'S6')
     b_diagram.add_state('S6', 'H', 'FINAL')
