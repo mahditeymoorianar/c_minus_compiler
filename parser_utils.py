@@ -170,7 +170,7 @@ def make_diagrams():
     # compound_stmt_diagram.add_state('S3', '}', 'FINAL')
     # compound_stmt_diagram.add_state('S1', 'Declaration-list', 'S2')
     # compound_stmt_diagram.add_state('S2', 'Statement-list', 'S3')
-    # transition_diagrams['Compound-stmt'] = compound_stmt_diagram
+    transition_diagrams['Compound-stmt'] = compound_stmt_diagram
 
     # line 14
     statement_list_diagram = Transition_Diagram('Statement-list')

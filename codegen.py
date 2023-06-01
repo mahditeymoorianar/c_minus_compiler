@@ -123,6 +123,10 @@ class CodeGen:
         self.error_detected = False
         self.stack_manager = StackManager()
 
+    def sspop(self):
+        print(f"ss = {self.semantic_stack}")
+        return self.semantic_stack.pop()
+
     def start_program(self):
         rbp = self.stack_manager.reg.rbp_container
 
@@ -139,7 +143,7 @@ class CodeGen:
                 self.semantic_stack.extend(('PRINT', 'output', 'void'))
             else:
                 self.semantic_errors.append(
-                    F'#{self.parser.lineno} : Semantic Error! \'{self.parser.current_token}\' is not defined.')
+                    F'#{self.parser.scanner.line} : Semantic Error! \'{self.parser.current_token}\' is not defined.')
 
                 self.error_detected = True
                 self.semantic_stack.extend((None, None, None))
@@ -173,27 +177,29 @@ class CodeGen:
         return F'@{temp}'
 
     def opera(self):
-        op2_id_type = self.semantic_stack.pop()
-        op2_el_type = self.semantic_stack.pop()
-        op2_addr = self.semantic_stack.pop()
-        op = {'+': 'ADD', '-': 'SUB', '*': 'MULT', '<': 'LT', '==': 'EQ'}[self.semantic_stack.pop()]
-        op1_id_type = self.semantic_stack.pop()
-        op1_el_type = self.semantic_stack.pop()
-        op1_addr = self.semantic_stack.pop()
+        print(self.semantic_stack)
+        print("^^^^^^^^")
+        op2_id_type = self.sspop()
+        op2_el_type = self.sspop()
+        op2_addr = self.sspop()
+        op = {'+': 'ADD', '-': 'SUB', '*': 'MULT', '<': 'LT', '==': 'EQ'}[self.sspop()]
+        op1_id_type = self.sspop()
+        op1_el_type = self.sspop()
+        op1_addr = self.sspop()
 
         if self.error_detected:
             self.semantic_stack.extend((None, None, None))
 
         elif op1_el_type == 'arr' or op2_el_type == 'arr':
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Type mismatch in operands, Got array instead of int.')
+                F'#{self.parser.scanner.line} : Semantic Error! Type mismatch in operands, Got array instead of int.')
 
             self.error_detected = True
             self.semantic_stack.extend((None, None, None))
 
         elif op1_id_type != op2_id_type:
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Type mismatch in operands, Got different types.')
+                F'#{self.parser.scanner.line} : Semantic Error! Type mismatch in operands, Got different types.')
 
             self.error_detected = True
             self.semantic_stack.extend((None, None, None))
@@ -204,11 +210,11 @@ class CodeGen:
             self.semantic_stack.extend((address, op1_el_type, op1_id_type))
 
     def push(self):
-        print('heree')
         self.semantic_stack.append(self.parser.current_token)
+        print(f'>>>>>>>>>>>> {self.semantic_stack}')
 
     def pop3(self):
-        self.semantic_stack.pop(), self.semantic_stack.pop(), self.semantic_stack.pop()
+        self.sspop(), self.sspop(), self.sspop()
         self.error_detected = False
 
     def semantic_refresh(self):
@@ -218,12 +224,12 @@ class CodeGen:
         self.semantic_stack.extend((F'#{self.parser.current_token}', 'var', 'int'))
 
     def assign(self):
-        rhs_id_type = self.semantic_stack.pop()
-        rhs_el_type = self.semantic_stack.pop()
-        rhs_addr = self.semantic_stack.pop()
-        lhs_id_type = self.semantic_stack.pop()
-        lhs_el_type = self.semantic_stack.pop()
-        lhs_addr = self.semantic_stack.pop()
+        rhs_id_type = self.sspop()
+        rhs_el_type = self.sspop()
+        rhs_addr = self.sspop()
+        lhs_id_type = self.sspop()
+        lhs_el_type = self.sspop()
+        lhs_addr = self.sspop()
 
         transform = {'pvar': 'int', 'var': 'int', 'arr': 'array', 'parr': 'array'}
 
@@ -233,14 +239,14 @@ class CodeGen:
         elif not (transform.get(rhs_el_type) and transform.get(lhs_el_type)) \
                 or transform.get(rhs_el_type) != transform.get(lhs_el_type):
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Type mismatch in operands, Got array instead of int.')
+                F'#{self.parser.scanner.line} : Semantic Error! Type mismatch in operands, Got array instead of int.')
 
             self.error_detected = True
             self.semantic_stack.extend((None, None, None))
 
         elif 'void' in {lhs_id_type, rhs_id_type}:
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Type mismatch in operands, Got void type.')
+                F'#{self.parser.scanner.line} : Semantic Error! Type mismatch in operands, Got void type.')
 
             self.error_detected = True
             self.semantic_stack.extend((None, None, None))
@@ -250,12 +256,12 @@ class CodeGen:
             self.semantic_stack.extend((lhs_addr, 'var', lhs_id_type))
 
     def declare(self, el_type='var', is_param=False):
-        lexeme = self.semantic_stack.pop()
-        id_type = self.semantic_stack.pop()
+        lexeme = self.sspop()
+        id_type = self.sspop()
 
         if id_type == 'void':
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Illegal type of void for \'{lexeme}\'.')
+                F'#{self.parser.scanner.line} : Semantic Error! Illegal type of void for \'{lexeme}\'.')
             self.error_detected = True
 
         else:
@@ -266,8 +272,8 @@ class CodeGen:
             mem.address = self.stack_manager.get_parameter()
 
             if not is_param:
-                self.pid(lexeme), self.semantic_stack.pop(), self.semantic_stack.pop()
-                lhs_addr = self.semantic_stack.pop()
+                self.pid(lexeme), self.sspop(), self.sspop()
+                lhs_addr = self.sspop()
                 self.program_block.append(F"(ASSIGN, #0, {lhs_addr})")
 
             self.program_block.append(F"(ADD, #4, {COUNTER_REGISTER0}, {COUNTER_REGISTER0})")
@@ -285,8 +291,8 @@ class CodeGen:
         self.stack_manager.activation.high_scope()
 
     def dec_fun(self):
-        lexeme = self.semantic_stack.pop()
-        id_type = self.semantic_stack.pop()
+        lexeme = self.sspop()
+        id_type = self.sspop()
 
         mem = self.stack_manager.activation.add_variable(lexeme)
         mem.id_type = id_type
@@ -324,14 +330,14 @@ class CodeGen:
         self.program_block.append(F'(JP, @{temp})')
 
     def dec_arr(self):
-        s_num = self.semantic_stack.pop()
-        lexeme = self.semantic_stack.pop()
-        id_type = self.semantic_stack.pop()
+        s_num = self.sspop()
+        lexeme = self.sspop()
+        id_type = self.sspop()
 
         s_num = int(s_num)
 
         if id_type == 'void':
-            self.semantic_errors.append(F'#{self.parser.lineno} : Illegal type of void for \'{lexeme}\'.')
+            self.semantic_errors.append(F'#{self.parser.scanner.line} : Illegal type of void for \'{lexeme}\'.')
             self.error_detected = True
 
         else:
@@ -353,15 +359,15 @@ class CodeGen:
                 F"(ADD, #{len(all_address) * MACHINE_WORD_SIZE}, {COUNTER_REGISTER0}, {COUNTER_REGISTER0})")
 
     def parr(self):
-        idn_id_type = self.semantic_stack.pop()
-        _ = self.semantic_stack.pop()
-        num_ind = self.semantic_stack.pop()
-        arr_id_type = self.semantic_stack.pop()
-        _ = self.semantic_stack.pop()
-        address = self.semantic_stack.pop()
+        idn_id_type = self.sspop()
+        _ = self.sspop()
+        num_ind = self.sspop()
+        arr_id_type = self.sspop()
+        _ = self.sspop()
+        address = self.sspop()
 
         if idn_id_type != 'int':
-            self.semantic_errors.append(F'#{self.parser.lineno} : Illegal type of index for the array.')
+            self.semantic_errors.append(F'#{self.parser.scanner.line} : Illegal type of index for the array.')
 
             self.error_detected = True
             self.semantic_stack.extend((None, None, None))
@@ -380,25 +386,25 @@ class CodeGen:
         self.program_block.append('saved!')
 
     def fill_jpf(self):
-        line = self.semantic_stack.pop()
-        _, _, check = self.semantic_stack.pop(), self.semantic_stack.pop(), self.semantic_stack.pop()
+        line = self.sspop()
+        _, _, check = self.sspop(), self.sspop(), self.sspop()
 
         self.program_block[line] = F'(JPF, {check}, {len(self.program_block)})'
 
     def fill_jp(self):
-        ind = self.semantic_stack.pop()
+        ind = self.sspop()
         self.program_block[ind] = F'(JP, {len(self.program_block)})'
 
     def ifc_action(self):
-        ind = self.semantic_stack.pop()
-        _ = self.semantic_stack.pop()
-        _ = self.semantic_stack.pop()
-        self.program_block[ind] = F'(JPF, {self.semantic_stack.pop()}, {len(self.program_block) + 1})'
+        ind = self.sspop()
+        _ = self.sspop()
+        _ = self.sspop()
+        self.program_block[ind] = F'(JPF, {self.sspop()}, {len(self.program_block) + 1})'
         self.save()
 
     def function_return(self):
-        self.semantic_stack.pop(), self.semantic_stack.pop()
-        addr = self.semantic_stack.pop()
+        self.sspop(), self.sspop()
+        addr = self.sspop()
 
         if self.error_detected:
             return
@@ -413,13 +419,13 @@ class CodeGen:
             self.program_block.append('break')
         else:
             self.semantic_errors.append(
-                F"#{self.parser.lineno} : Semantic Error! No 'repeat ... until' found for 'break'.")
+                F"#{self.parser.scanner.line} : Semantic Error! No 'repeat ... until' found for 'break'.")
 
             self.error_detected = True
 
     def until(self):
-        _, _, address = self.semantic_stack.pop(), self.semantic_stack.pop(), self.semantic_stack.pop(),
-        line = self.semantic_stack.pop()
+        _, _, address = self.sspop(), self.sspop(), self.sspop(),
+        line = self.sspop()
 
         self.program_block.append(F'(JPF, {address}, {line})')
 
@@ -432,13 +438,13 @@ class CodeGen:
 
     def call(self):
         id_type, lexeme, address = \
-            self.semantic_stack.pop(), self.semantic_stack.pop(), self.semantic_stack.pop()
+            self.sspop(), self.sspop(), self.sspop()
 
         if lexeme == 'output' and address == 'PRINT':
 
             if len(self.function_arg) > 1:
                 self.semantic_errors.append(
-                    F'#{self.parser.lineno} : Semantic Error! Mismatch in numbers of arguments of output.')
+                    F'#{self.parser.scanner.line} : Semantic Error! Mismatch in numbers of arguments of output.')
             else:
                 self.program_block.append(F'(PRINT, {self.function_arg[0][0]})')
 
@@ -452,7 +458,7 @@ class CodeGen:
 
         if len(params) != len(self.function_arg):
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Mismatch in numbers of arguments of \'{lexeme}\'.')
+                F'#{self.parser.scanner.line} : Semantic Error! Mismatch in numbers of arguments of \'{lexeme}\'.')
 
             self.semantic_stack.extend((None, None, None))
             self.error_detected = True
@@ -468,7 +474,7 @@ class CodeGen:
 
         if diff:
             self.semantic_errors.append(
-                F'#{self.parser.lineno} : Semantic Error! Mismatch in type of argument {diff[0][0]} of \'{lexeme}\'. '
+                F'#{self.parser.scanner.line} : Semantic Error! Mismatch in type of argument {diff[0][0]} of \'{lexeme}\'. '
                 F'Expected \'{diff[0][1]}\' but got \'{diff[0][2]}\' instead.')
 
             self.semantic_stack.extend((None, None, None))
@@ -524,7 +530,7 @@ class CodeGen:
 
     def add_args(self):
         x3, x2, x1 = \
-            self.semantic_stack.pop(), self.semantic_stack.pop(), self.semantic_stack.pop()
+            self.sspop(), self.sspop(), self.sspop()
 
         self.function_arg.append((x1, x2, x3))
 
@@ -535,7 +541,7 @@ class CodeGen:
             self.program_block.append('return')
         else:
             self.semantic_errors.append(
-                F"#{self.parser.lineno}: Semantic Error! No 'function' found for 'return'.")
+                F"#{self.parser.scanner.line}: Semantic Error! No 'function' found for 'return'.")
 
             self.error_detected = True
 

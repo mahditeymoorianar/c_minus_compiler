@@ -12,9 +12,7 @@ from copy import deepcopy
 from parser_utils import make_diagrams, Transition_Diagram, ParserNode, is_terminal
 from codegen import CodeGen
 
-# TODO: lexical errors?
 all_diagrams = make_diagrams()
-
 
 
 def enter_diagram(diagram_name, current_token):
@@ -62,6 +60,10 @@ def transition(self):
     else:
         transition_symbol = list(self.states[self.current_state].keys())[0]
         if is_terminal(transition_symbol) or transition_symbol.startswith('#'):
+            if transition_symbol.startswith('#'):
+                selected_function = getattr(code_generator, transition_symbol[1:])
+                # Call the selected function
+                selected_function()
             self.current_state = self.states[self.current_state][transition_symbol]
             self.traversed_edge = transition_symbol
             if self.current_token == transition_symbol or transition_symbol.startswith('#'):
@@ -112,10 +114,6 @@ class Parser:
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
-            # print(self.current_diagram.name)
-            # print(self.current_diagram.current_state)
-            # print(self.current_token)
-            # print('********')
             if self.EOF:
                 break
             self.current_diagram = self.diagram_stack[-1]
@@ -126,6 +124,14 @@ class Parser:
             transition_res = self.current_diagram.transition()
             if transition_res == 'SUCCESS':
                 edge = self.current_diagram.traversed_edge
+
+
+                if type(edge) == type('#'):
+                    print(edge)
+                else:
+                    print(edge.name)
+                print('&&&&&&&&')
+
                 if edge == 'EPS':
                     ParserNode('epsilon', parent=self.current_diagram.parser_node)
                     continue
