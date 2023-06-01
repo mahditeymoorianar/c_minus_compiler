@@ -10,9 +10,11 @@ from scanner import Scanner
 from anytree import RenderTree
 from copy import deepcopy
 from parser_utils import make_diagrams, Transition_Diagram, ParserNode, is_terminal
+from codegen import CodeGen
 
 # TODO: lexical errors?
 all_diagrams = make_diagrams()
+code_generator = CodeGen()
 
 
 def enter_diagram(diagram_name, current_token):
@@ -28,6 +30,11 @@ def enter_diagram(diagram_name, current_token):
                 return transition_symbol
             else:
                 continue
+        if transition_symbol.startswith('#'):
+            selected_function = getattr(code_generator, transition_symbol[1:])
+            # Call the selected function
+            selected_function()
+            return transition_symbol
         else:
             transition_symbol = all_diagrams[transition_symbol]
             if current_token in transition_symbol.first or (
@@ -42,7 +49,7 @@ def transition(self):
     if self.current_state == 'S0':
         transition_symbol = enter_diagram(self.name, self.current_token)
         if transition_symbol:
-            if transition_symbol == 'EPS' or is_terminal(transition_symbol):
+            if transition_symbol == 'EPS' or is_terminal(transition_symbol) or transition_symbol.startswith('#'):
                 self.current_state = self.states[self.current_state][transition_symbol]
                 self.traversed_edge = transition_symbol
             else:
@@ -51,12 +58,13 @@ def transition(self):
             return 'SUCCESS'
         else:
             return 'ERR_NT'
+    # only one branch to go with and it doesn't contain eps
     else:
         transition_symbol = list(self.states[self.current_state].keys())[0]
-        if is_terminal(transition_symbol):
+        if is_terminal(transition_symbol) or transition_symbol.startswith('#'):
             self.current_state = self.states[self.current_state][transition_symbol]
             self.traversed_edge = transition_symbol
-            if self.current_token == transition_symbol:
+            if self.current_token == transition_symbol or transition_symbol.startswith('#'):
                 return 'SUCCESS'
             else:
                 return 'ERR_T'
@@ -125,6 +133,8 @@ class Parser:
                                parent=self.current_diagram.parser_node)
                     self.current_token_full = self.scanner.get_next_token()
                     self.current_token = self.tokenize(self.current_token_full)
+                elif edge.startswith('#'):
+                    continue
                 else:
                     diagram_instance = deepcopy(self.transition_diagrams[edge])
                     diagram_instance.current_state = 'S0'
