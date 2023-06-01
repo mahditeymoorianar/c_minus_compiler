@@ -49,7 +49,8 @@ def make_diagrams():
     # line 1
     program_diagram = Transition_Diagram('Program')
     program_diagram.add_state('S0', '#start_program', 'S1_0')
-    program_diagram.add_state('S1_0', 'Declaration-list', 'FINAL')
+    program_diagram.add_state('S1_0', 'Declaration-list', 'S1')
+    program_diagram.add_state('S1', '#end_program', 'FINAL')
     # program_diagram.add_state('S0', 'Declaration-list', 'FINAL')
     transition_diagrams['Program'] = program_diagram
 
