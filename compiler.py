@@ -1,3 +1,11 @@
+'''
+This is phase2 of the project of compiler course (1401-402)
+Team members (alphabetical order):
+Dorsa Majdi (98102227)
+Mahdi Teymoori Anar (99101354)
+
+Github: https://github.com/mahditeymoorianar/c_minus_compiler
+'''
 from scanner import Scanner
 from anytree import RenderTree
 from copy import deepcopy
