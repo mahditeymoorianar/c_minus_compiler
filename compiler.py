@@ -14,7 +14,7 @@ from codegen import CodeGen
 
 # TODO: lexical errors?
 all_diagrams = make_diagrams()
-code_generator = CodeGen()
+
 
 
 def enter_diagram(diagram_name, current_token):
@@ -49,7 +49,7 @@ def transition(self):
     if self.current_state == 'S0':
         transition_symbol = enter_diagram(self.name, self.current_token)
         if transition_symbol:
-            if transition_symbol == 'EPS' or is_terminal(transition_symbol) or transition_symbol.startswith('#'):
+            if transition_symbol == 'EPS' or is_terminal(transition_symbol) or (type(transition_symbol) == type('#') and transition_symbol.startswith('#')):
                 self.current_state = self.states[self.current_state][transition_symbol]
                 self.traversed_edge = transition_symbol
             else:
@@ -115,6 +115,7 @@ class Parser:
             # print(self.current_diagram.name)
             # print(self.current_diagram.current_state)
             # print(self.current_token)
+            # print('********')
             if self.EOF:
                 break
             self.current_diagram = self.diagram_stack[-1]
@@ -171,6 +172,7 @@ scanner = Scanner(file_name)
 err_file = open('syntax_errors.txt', 'w')
 tree_file = open('parse_tree.txt', 'wb')
 parser = Parser(scanner, all_diagrams)
+code_generator = CodeGen(parser)
 err = parser.run()
 if not err:
     err_file.write('There is no syntax error.')

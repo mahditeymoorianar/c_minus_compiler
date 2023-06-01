@@ -131,15 +131,15 @@ class CodeGen:
 
     def pid(self, lexeme=None):
 
-        level, row = self.stack_manager.activation.get_variable(lexeme or self.parser.token.lexeme)
+        level, row = self.stack_manager.activation.get_variable(lexeme or self.parser.current_token)
 
         if row is None:
 
-            if self.parser.token.lexeme == 'output':
+            if self.parser.current_token == 'output':
                 self.semantic_stack.extend(('PRINT', 'output', 'void'))
             else:
                 self.semantic_errors.append(
-                    F'#{self.parser.lineno} : Semantic Error! \'{self.parser.token.lexeme}\' is not defined.')
+                    F'#{self.parser.lineno} : Semantic Error! \'{self.parser.current_token}\' is not defined.')
 
                 self.error_detected = True
                 self.semantic_stack.extend((None, None, None))
@@ -204,7 +204,8 @@ class CodeGen:
             self.semantic_stack.extend((address, op1_el_type, op1_id_type))
 
     def push(self):
-        self.semantic_stack.append(self.parser.token.lexeme)
+        print('heree')
+        self.semantic_stack.append(self.parser.current_token)
 
     def pop3(self):
         self.semantic_stack.pop(), self.semantic_stack.pop(), self.semantic_stack.pop()
@@ -214,7 +215,7 @@ class CodeGen:
         self.error_detected = False
 
     def pnum(self):
-        self.semantic_stack.extend((F'#{self.parser.token.lexeme}', 'var', 'int'))
+        self.semantic_stack.extend((F'#{self.parser.current_token}', 'var', 'int'))
 
     def assign(self):
         rhs_id_type = self.semantic_stack.pop()

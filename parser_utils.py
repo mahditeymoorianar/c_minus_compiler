@@ -40,7 +40,7 @@ class Transition_Diagram:
     def add_state(self, begin_state, edge_token, end_state):
         if begin_state not in self.states:
             self.states[begin_state] = {}
-        # self.states[begin_state][edge_token] = end_state.replace('_', '-')
+        self.states[begin_state][edge_token] = end_state
 
 
 def make_diagrams():
@@ -97,7 +97,7 @@ def make_diagrams():
 
     # line 7
     fun_declaration_prime_diagram = Transition_Diagram('Fun-declaration-prime')
-    fun_declaration_prime_diagram.add_state('S0', '#def_fun', 'S1')
+    fun_declaration_prime_diagram.add_state('S0', '#dec_fun', 'S1')
     fun_declaration_prime_diagram.add_state('S1', '(', 'S2')
     fun_declaration_prime_diagram.add_state('S2', 'Params', 'S3')
     fun_declaration_prime_diagram.add_state('S3', ')', 'S4')
