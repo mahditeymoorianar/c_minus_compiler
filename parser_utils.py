@@ -40,7 +40,7 @@ class Transition_Diagram:
     def add_state(self, begin_state, edge_token, end_state):
         if begin_state not in self.states:
             self.states[begin_state] = {}
-        self.states[begin_state][edge_token] = end_state.replace('_', '-')
+        # self.states[begin_state][edge_token] = end_state.replace('_', '-')
 
 
 def make_diagrams():
@@ -162,7 +162,7 @@ def make_diagrams():
     compound_stmt_diagram.add_state('S2', 'Declaration-list', 'S3')
     compound_stmt_diagram.add_state('S3', 'Statement-list', 'S4')
     compound_stmt_diagram.add_state('S4', '}', 'S5')
-    compound_stmt_diagram.add_state('S5', '#finish_scope')
+    compound_stmt_diagram.add_state('S5', '#finish_scope', 'FINAL')
 
 
     # compound_stmt_diagram.add_state('S0', '{', 'S1')
