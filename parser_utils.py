@@ -51,6 +51,8 @@ def make_diagrams():
     program_diagram.add_state('S0', '#start_program', 'S1_0')
     program_diagram.add_state('S1_0', 'Declaration-list', 'S1')
     program_diagram.add_state('S1', '#end_program', 'FINAL')
+    program_diagram.add_state('S2', 'EPS', 'FINAL')
+    program_diagram.add_state('S2', '$', 'FINAL')
     # program_diagram.add_state('S0', 'Declaration-list', 'FINAL')
     transition_diagrams['Program'] = program_diagram
 
@@ -191,12 +193,20 @@ def make_diagrams():
 
     # line 16
     expression_stmt_diagram = Transition_Diagram('Expression-stmt')
-    expression_stmt_diagram.add_state('S0', 'break', 'S1_0')
-    expression_stmt_diagram.add_state('S1_0', '#scope_break', 'S1')
-    expression_stmt_diagram.add_state('S1', ';', 'FINAL')
-    expression_stmt_diagram.add_state('S0', ';', 'FINAL')
-    expression_stmt_diagram.add_state('S0', 'Expression', 'S1_1')
-    expression_stmt_diagram.add_state('S1_1', '#pop3', 'S1')
+    expression_stmt_diagram.add_state('S0', 'Expression', 'S1')
+    expression_stmt_diagram.add_state('S1', '#pop3', 'S2')
+    expression_stmt_diagram.add_state('S2', ';', 'FINAL')
+    expression_stmt_diagram.add_state('S0', 'break', 'S3')
+    expression_stmt_diagram.add_state('S3', '#scope_break', 'S4')
+    expression_stmt_diagram.add_state('S4', ';', 'FINAL')
+
+
+    # expression_stmt_diagram.add_state('S0', 'break', 'S1_0')
+    # expression_stmt_diagram.add_state('S1_0', '#scope_break', 'S1')
+    # expression_stmt_diagram.add_state('S1', ';', 'FINAL')
+    # expression_stmt_diagram.add_state('S0', ';', 'FINAL')
+    # expression_stmt_diagram.add_state('S0', 'Expression', 'S1_1')
+    # expression_stmt_diagram.add_state('S1_1', '#pop3', 'S1')
     transition_diagrams['Expression-stmt'] = expression_stmt_diagram
 
     # line 17
@@ -225,12 +235,12 @@ def make_diagrams():
     iteration_stmt_diagram = Transition_Diagram('Iteration-stmt')
     iteration_stmt_diagram.add_state('S0', '#loop', 'S1_0')
     iteration_stmt_diagram.add_state('S1_0', 'repeat', 'S1')
+    iteration_stmt_diagram.add_state('S1', 'Statement', 'S2')
     iteration_stmt_diagram.add_state('S2', 'until', 'S3')
     iteration_stmt_diagram.add_state('S3', '(', 'S4')
+    iteration_stmt_diagram.add_state('S4', 'Expression', 'S5')
     iteration_stmt_diagram.add_state('S5', ')', 'S10')
     iteration_stmt_diagram.add_state('S10', '#until', 'FINAL')
-    iteration_stmt_diagram.add_state('S1', 'Statement', 'S2')
-    iteration_stmt_diagram.add_state('S4', 'Expression', 'S5')
     transition_diagrams['Iteration-stmt'] = iteration_stmt_diagram
 
     # line 19
