@@ -325,8 +325,9 @@ def make_diagrams():
     relop_diagram = Transition_Diagram('Relop')
     relop_diagram.add_state('S0', '#push', 'S1')
     relop_diagram.add_state('S1', '<', 'FINAL')
-    relop_diagram.add_state('S0', '#push', 'S2')
-    relop_diagram.add_state('S2', '==', 'FINAL')
+    relop_diagram.add_state('S1', '==', 'FINAL')
+    # relop_diagram.add_state('S0', '#push', 'S2')
+    # relop_diagram.add_state('S2', '==', 'FINAL')
     transition_diagrams['Relop'] = relop_diagram
 
     # line 28
@@ -360,8 +361,9 @@ def make_diagrams():
     addop_diagram = Transition_Diagram('Addop')
     addop_diagram.add_state('S0', '#push', 'S1')
     addop_diagram.add_state('S1', '+', 'FINAL')
-    addop_diagram.add_state('S0', '#push', 'S2')
-    addop_diagram.add_state('S2', '-', 'FINAL')
+    addop_diagram.add_state('S1', '-', 'FINAL')
+    # addop_diagram.add_state('S0', '#push', 'S2')
+    # addop_diagram.add_state('S2', '-', 'FINAL')
     transition_diagrams['Addop'] = addop_diagram
 
     # line 33

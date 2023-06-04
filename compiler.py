@@ -18,15 +18,26 @@ all_diagrams = make_diagrams()
 def enter_diagram(diagram_name, current_token, start='S0'):
     diagram = all_diagrams[diagram_name]
     edges = []
-    for i, transition_symbol in enumerate(diagram.states[start]):
+    print(f"enter_diagram {diagram_name}")
+    i = 0
+    print(f"diagram.states : {diagram.states}, ~[start] : {diagram.states[start]}")
+    for transition_symbol in diagram.states[start]:
         if transition_symbol.startswith('#'):
-            edges.append((list(diagram.states[diagram.states[start][transition_symbol]].keys())[0], i))
+            print(f"{transition_symbol} starts with #")
+            l = list(diagram.states[diagram.states[start][transition_symbol]].keys())
+            print(f"l = {l}")
+            for j in range(len(l)):
+                edges.append((l[j], i+j))
+            i += len(l) - 1
         else:
             edges.append((transition_symbol, None))
+        i += 1
+    print(f"~~~~~~~~ edges : {edges}")
     res = None
     res_num = None
     for transition_symbol, idx in edges:
         if transition_symbol == 'EPS':
+            print("State 1 : EPS")
             if current_token in diagram.follow:
                 res = 'EPS'
                 res_num = idx
@@ -34,6 +45,7 @@ def enter_diagram(diagram_name, current_token, start='S0'):
             else:
                 continue
         if is_terminal(transition_symbol):
+            print(f"State 2 : {transition_symbol}")
             if transition_symbol == current_token:
                 res = transition_symbol
                 res_num = idx
@@ -42,6 +54,7 @@ def enter_diagram(diagram_name, current_token, start='S0'):
             else:
                 continue
         else:
+            print(f"State 3 : {transition_symbol}")
             transition_symbol = all_diagrams[transition_symbol]
             if current_token in transition_symbol.first or (
                     'EPS' in transition_symbol.first and current_token in transition_symbol.follow):
@@ -77,9 +90,9 @@ def transition(self):
         transition_symbol = list(self.states[self.current_state].keys())[0]
         if is_terminal(transition_symbol) or transition_symbol.startswith('#'):
             if transition_symbol.startswith('#'):
-                selected_function = getattr(code_generator, transition_symbol[1:])
-                # Call the selected function
-                selected_function()
+                eval(f'code_generator.{transition_symbol[1:]}()')
+            print(f"current_state : {self.current_state} --> {self.states[self.current_state][transition_symbol]}"
+                  f"\n------------ self.states[self.current_state] : {self.states[self.current_state]} ")
             self.current_state = self.states[self.current_state][transition_symbol]
             self.traversed_edge = transition_symbol
             if self.current_token == transition_symbol or transition_symbol.startswith('#'):
