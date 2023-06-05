@@ -68,7 +68,7 @@ def transition(self):
         if is_terminal(transition_symbol) or transition_symbol == 'EPS':
             self.current_state = self.states[self.current_state][transition_symbol_full]
             self.traversed_edge = transition_symbol
-            if self.current_token == transition_symbol:
+            if self.current_token == transition_symbol or transition_symbol == 'EPS':
                 return 'SUCCESS'
             else:
                 return 'ERR_T'
