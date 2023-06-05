@@ -123,6 +123,7 @@ class Parser:
                 break
             self.current_diagram = self.diagram_stack[-1]
             if self.current_diagram.name == 'Program' and self.current_token == '$':
+                code_generator.end_program()
                 ParserNode('$', parent=self.current_diagram.parser_node)
                 break
             self.current_diagram.current_token = self.current_token
