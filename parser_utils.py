@@ -270,7 +270,8 @@ def make_diagrams():
     # line 22
     b_diagram = Transition_Diagram('B')
     b_diagram.add_state('S0', '=', 'S1')
-    b_diagram.add_state('S1', 'Expression#assign', 'FINAL')
+    b_diagram.add_state('S1', 'Expression', 'S2')
+    b_diagram.add_state('S2', 'EPS#assign', 'FINAL')
     b_diagram.add_state('S0', '[', 'S3')
     b_diagram.add_state('S3', 'Expression', 'S4')
     b_diagram.add_state('S4', ']', 'S5')
@@ -316,7 +317,8 @@ def make_diagrams():
     # line 26
     c_diagram = Transition_Diagram('C')
     c_diagram.add_state('S0', 'Relop', 'S1')
-    c_diagram.add_state('S1', 'Additive-expression#opera', 'FINAL')
+    c_diagram.add_state('S1', 'Additive-expression', 'S2')
+    c_diagram.add_state('S2', 'EPS#opera', 'FINAL')
     c_diagram.add_state('S0', 'EPS', 'FINAL')
     transition_diagrams['C'] = c_diagram
 

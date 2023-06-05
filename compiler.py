@@ -65,8 +65,7 @@ def transition(self):
             selected_function()
         else:
             transition_symbol = transition_symbol_full
-        print(self.name)
-        if is_terminal(transition_symbol):
+        if is_terminal(transition_symbol) or transition_symbol == 'EPS':
             self.current_state = self.states[self.current_state][transition_symbol_full]
             self.traversed_edge = transition_symbol
             if self.current_token == transition_symbol:
