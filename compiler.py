@@ -1,101 +1,79 @@
-'''
-This is phase2 of the project of compiler course (1401-402)
-Team members (alphabetical order):
-Dorsa Majdi (98102227)
-Mahdi Teymoori Anar (99101354)
-
-Github: https://github.com/mahditeymoorianar/c_minus_compiler
-'''
 from scanner import Scanner
 from anytree import RenderTree
 from copy import deepcopy
 from parser_utils import make_diagrams, Transition_Diagram, ParserNode, is_terminal
 from codegen import CodeGen
 
+# TODO: lexical errors?
 all_diagrams = make_diagrams()
 
 
-def enter_diagram(diagram_name, current_token, start='S0'):
+def enter_diagram(diagram_name, current_token):
     diagram = all_diagrams[diagram_name]
-    edges = []
-    print(f"enter_diagram {diagram_name}")
-    i = 0
-    print(f"diagram.states : {diagram.states}, ~[start] : {diagram.states[start]}")
-    for transition_symbol in diagram.states[start]:
-        if transition_symbol.startswith('#'):
-            print(f"{transition_symbol} starts with #")
-            l = list(diagram.states[diagram.states[start][transition_symbol]].keys())
-            print(f"l = {l}")
-            for j in range(len(l)):
-                edges.append((l[j], i+j))
-            i += len(l) - 1
+    for transition_symbol_full in diagram.states['S0']:
+        if "#" in transition_symbol_full:
+            strings = transition_symbol_full.split("#")
+            transition_symbol = strings[0]
         else:
-            edges.append((transition_symbol, None))
-        i += 1
-    print(f"~~~~~~~~ edges : {edges}")
-    res = None
-    res_num = None
-    for transition_symbol, idx in edges:
+            transition_symbol = transition_symbol_full
         if transition_symbol == 'EPS':
-            print("State 1 : EPS")
             if current_token in diagram.follow:
-                res = 'EPS'
-                res_num = idx
-                break
+                return transition_symbol_full
             else:
                 continue
         if is_terminal(transition_symbol):
-            print(f"State 2 : {transition_symbol}")
             if transition_symbol == current_token:
-                res = transition_symbol
-                res_num = idx
-                break
-
+                return transition_symbol_full
             else:
                 continue
         else:
-            print(f"State 3 : {transition_symbol}")
             transition_symbol = all_diagrams[transition_symbol]
             if current_token in transition_symbol.first or (
                     'EPS' in transition_symbol.first and current_token in transition_symbol.follow):
-                res = transition_symbol
-                res_num = idx
-                break
-    if not res_num == None:
-        res = list(diagram.states[start].keys())[res_num]
-    return res
+                return transition_symbol_full
+    return None
 
 
 def transition(self):
     if self.current_state == 'FINAL':
         return 'FINAL'
     if self.current_state == 'S0':
-        transition_symbol = enter_diagram(self.name, self.current_token)
+        transition_symbol_full = enter_diagram(self.name, self.current_token)
+        if "#" in transition_symbol_full:
+            strings = transition_symbol_full.split("#")
+            transition_symbol = strings[0]
+            action = strings[1]
+            selected_function = getattr(code_generator, action)
+            # Call the selected function
+            selected_function()
+        else:
+            transition_symbol = transition_symbol_full
         if transition_symbol:
-            if transition_symbol == 'EPS' or is_terminal(transition_symbol) or (type(transition_symbol) == type('#') and transition_symbol.startswith('#')):
+            if transition_symbol == 'EPS' or is_terminal(transition_symbol):
                 self.current_state = self.states[self.current_state][transition_symbol]
                 self.traversed_edge = transition_symbol
-                if transition_symbol.startswith('#'):
-                    selected_function = getattr(code_generator, transition_symbol[1:])
-                    # Call the selected function
-                    selected_function()
             else:
+                print(f"transition_symbol : {transition_symbol} of type {type(transition_symbol)} and its attrs: {transition_symbol.__dir__()}")
                 self.current_state = self.states[self.current_state][transition_symbol.name]
                 self.traversed_edge = transition_symbol.name
             return 'SUCCESS'
         else:
             return 'ERR_NT'
-    # only one branch to go with and it doesn't contain eps
     else:
-        transition_symbol = list(self.states[self.current_state].keys())[0]
-        if is_terminal(transition_symbol) or transition_symbol.startswith('#'):
-            if transition_symbol.startswith('#'):
-                eval(f'code_generator.{transition_symbol[1:]}()')
-            print(f"current_state : {self.current_state} --> {self.states[self.current_state][transition_symbol]}"
-                  f"\n------------ self.states[self.current_state] : {self.states[self.current_state]} ")
+        transition_symbol_full = list(self.states[self.current_state].keys())[0]
+        if "#" in transition_symbol_full:
+            strings = transition_symbol_full.split("#")
+            transition_symbol = strings[0]
+            action = strings[1]
+            selected_function = getattr(code_generator, action)
+            # Call the selected function
+            selected_function()
+        else:
+            transition_symbol = transition_symbol_full
+        if is_terminal(transition_symbol):
             self.current_state = self.states[self.current_state][transition_symbol]
             self.traversed_edge = transition_symbol
-            if self.current_token == transition_symbol or transition_symbol.startswith('#'):
+            if self.current_token == transition_symbol:
                 return 'SUCCESS'
             else:
                 return 'ERR_T'
@@ -143,6 +121,9 @@ class Parser:
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
+            # print(self.current_diagram.name)
+            # print(self.current_diagram.current_state)
+            # print(self.current_token)
             if self.EOF:
                 break
             self.current_diagram = self.diagram_stack[-1]
@@ -153,14 +134,6 @@ class Parser:
             transition_res = self.current_diagram.transition()
             if transition_res == 'SUCCESS':
                 edge = self.current_diagram.traversed_edge
-
-
-                if type(edge) == type('#'):
-                    print(edge)
-                else:
-                    print(edge.name)
-                print('&&&&&&&&')
-
                 if edge == 'EPS':
                     ParserNode('epsilon', parent=self.current_diagram.parser_node)
                     continue
@@ -169,8 +142,6 @@ class Parser:
                                parent=self.current_diagram.parser_node)
                     self.current_token_full = self.scanner.get_next_token()
                     self.current_token = self.tokenize(self.current_token_full)
-                elif edge.startswith('#'):
-                    continue
                 else:
                     diagram_instance = deepcopy(self.transition_diagrams[edge])
                     diagram_instance.current_state = 'S0'
