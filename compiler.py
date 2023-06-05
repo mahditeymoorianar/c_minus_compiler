@@ -39,23 +39,18 @@ def transition(self):
         return 'FINAL'
     if self.current_state == 'S0':
         transition_symbol_full = enter_diagram(self.name, self.current_token)
-        if "#" in transition_symbol_full:
-            strings = transition_symbol_full.split("#")
-            transition_symbol = strings[0]
-            action = strings[1]
-            selected_function = getattr(code_generator, action)
-            # Call the selected function
-            selected_function()
-        else:
-            transition_symbol = transition_symbol_full
-        if transition_symbol:
-            if transition_symbol == 'EPS' or is_terminal(transition_symbol):
-                self.current_state = self.states[self.current_state][transition_symbol]
-                self.traversed_edge = transition_symbol
+        if transition_symbol_full:
+            if "#" in transition_symbol_full:
+                strings = transition_symbol_full.split("#")
+                transition_symbol = strings[0]
+                action = strings[1]
+                selected_function = getattr(code_generator, action)
+                # Call the selected function
+                selected_function()
             else:
-                print(f"transition_symbol : {transition_symbol} of type {type(transition_symbol)} and its attrs: {transition_symbol.__dir__()}")
-                self.current_state = self.states[self.current_state][transition_symbol.name]
-                self.traversed_edge = transition_symbol.name
+                transition_symbol = transition_symbol_full
+            self.current_state = self.states[self.current_state][transition_symbol_full]
+            self.traversed_edge = transition_symbol
             return 'SUCCESS'
         else:
             return 'ERR_NT'
@@ -71,7 +66,7 @@ def transition(self):
         else:
             transition_symbol = transition_symbol_full
         if is_terminal(transition_symbol):
-            self.current_state = self.states[self.current_state][transition_symbol]
+            self.current_state = self.states[self.current_state][transition_symbol_full]
             self.traversed_edge = transition_symbol
             if self.current_token == transition_symbol:
                 return 'SUCCESS'
@@ -80,12 +75,12 @@ def transition(self):
         else:
             transition_symbol = all_diagrams[transition_symbol]
             if enter_diagram(transition_symbol.name, self.current_token):
-                self.current_state = self.states[self.current_state][transition_symbol.name]
+                self.current_state = self.states[self.current_state][transition_symbol_full]
                 self.traversed_edge = transition_symbol.name
                 return 'SUCCESS'
             else:
                 if self.current_token in transition_symbol.follow:
-                    self.current_state = self.states[self.current_state][transition_symbol.name]
+                    self.current_state = self.states[self.current_state][transition_symbol_full]
                     self.traversed_edge = transition_symbol.name
                     return 'ERR_MISS'
                 else:

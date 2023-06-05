@@ -124,7 +124,7 @@ class CodeGen:
         self.stack_manager = StackManager()
 
     def sspop(self):
-        print(f'pop from semantic stack which is currently :{self.semantic_stack}')
+        # print(f'pop from semantic stack which is currently :{self.semantic_stack}')
         return self.semantic_stack.pop()
 
     def start_program(self):
@@ -142,9 +142,9 @@ class CodeGen:
 
         if row is None:
             # not sure about here
-            print(f"row is None, and current_token = {self.parser.current_token}\t{self.parser.current_token_full.lexeme}")
+            # print(f"row is None, and current_token = {self.parser.current_token}\t{self.parser.current_token_full.lexeme}")
             if self.parser.current_token_full.lexeme == 'output':
-                print(f" >>> we reched an output")
+                # print(f" >>> we reched an output")
                 self.semantic_stack.extend(('PRINT', 'output', 'void'))
             else:
                 self.semantic_errors.append(
@@ -188,7 +188,7 @@ class CodeGen:
         op2_id_type = self.sspop()
         op2_el_type = self.sspop()
         op2_addr = self.sspop()
-        print(f"---> ss = {self.semantic_stack}")
+        # print(f"---> ss = {self.semantic_stack}")
         op = {'+': 'ADD', '-': 'SUB', '*': 'MULT', '<': 'LT', '==': 'EQ'}[self.sspop()]
         op1_id_type = self.sspop()
         op1_el_type = self.sspop()
@@ -218,7 +218,7 @@ class CodeGen:
 
     def push(self):
         self.semantic_stack.append(self.parser.current_token_full.lexeme)
-        print(f'>>>>>>>>>>>> {self.semantic_stack}')
+        # print(f'>>>>>>>>>>>> {self.semantic_stack}')
 
     def pop3(self):
         self.sspop(), self.sspop(), self.sspop()

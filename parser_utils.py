@@ -76,7 +76,7 @@ def make_diagrams():
     declaration_initial_diagram = Transition_Diagram('Declaration-initial')
     declaration_initial_diagram.add_state('S0', 'Type-specifier#push', 'S1')
     # declaration_initial_diagram.add_state('S1', 'Type-specifier', 'S2')
-    declaration_initial_diagram.add_state('S2', 'ID#push', 'FINAL')
+    declaration_initial_diagram.add_state('S1', 'ID#push', 'FINAL')
     # declaration_initial_diagram.add_state('S3', 'ID', 'FINAL')
     transition_diagrams['Declaration-initial'] = declaration_initial_diagram
 
@@ -317,8 +317,7 @@ def make_diagrams():
     # line 26
     c_diagram = Transition_Diagram('C')
     c_diagram.add_state('S0', 'Relop', 'S1')
-    c_diagram.add_state('S1', 'Additive-expression', 'S2')
-    c_diagram.add_state('S2', 'EPS#opera', 'FINAL')
+    c_diagram.add_state('S1', 'Additive-expression#opera', 'FINAL')
     c_diagram.add_state('S0', 'EPS', 'FINAL')
     transition_diagrams['C'] = c_diagram
 
@@ -439,7 +438,7 @@ def make_diagrams():
     factor_zegond_diagram.add_state('S0', '(', 'S1')
     factor_zegond_diagram.add_state('S1', 'Expression', 'S2')
     factor_zegond_diagram.add_state('S2', ')', 'FINAL')
-    factor_zegond_diagram.add_state('S0', 'NUM#pnum', 'S4')
+    factor_zegond_diagram.add_state('S0', 'NUM#pnum', 'FINAL')
     # factor_zegond_diagram.add_state('S4', 'NUM', 'FINAL')
     transition_diagrams['Factor-zegond'] = factor_zegond_diagram
 
