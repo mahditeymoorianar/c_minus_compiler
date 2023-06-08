@@ -116,7 +116,7 @@ class Parser:
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
-            # print(self.current_diagram.name)
+            print(self.current_diagram.name)
             # print(self.current_diagram.current_state)
             # print(self.current_token)
             if self.EOF:
