@@ -409,7 +409,7 @@ def make_diagrams():
 
     # line 38
     var_call_prime_diagram = Transition_Diagram('Var-call-prime')
-    var_call_prime_diagram.add_state('S0', '(', 'S1')
+    var_call_prime_diagram.add_state('S0', '(#reset_args', 'S1')
     var_call_prime_diagram.add_state('S1', 'Args', 'S2')
     var_call_prime_diagram.add_state('S2', ')', 'S3')
     var_call_prime_diagram.add_state('S3', 'EPS#call', 'FINAL')
@@ -427,7 +427,7 @@ def make_diagrams():
 
     # line 40
     factor_prime_diagram = Transition_Diagram('Factor-prime')
-    factor_prime_diagram.add_state('S0', '(', 'S1')
+    factor_prime_diagram.add_state('S0', '(#reset_args', 'S1')
     factor_prime_diagram.add_state('S1', 'Args', 'S2')
     factor_prime_diagram.add_state('S2', ')', 'S3')
     factor_prime_diagram.add_state('S3', 'EPS#call', 'FINAL')

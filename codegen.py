@@ -136,8 +136,7 @@ class CodeGen:
     def pid(self, lexeme=None):
 
         level, row = self.stack_manager.activation.get_variable(lexeme or self.parser.current_token_full.lexeme)
-        # print(f'>>>>>>>>>>{lexeme}')
-        # print(level, row)
+        # print(level, row.el_type)
         # print("^^^^^^^^^")
 
         if row is None:
@@ -183,7 +182,7 @@ class CodeGen:
         return F'@{temp}'
 
     def opera(self):
-        # print(self.semantic_stack)
+        # print(f'>>>>>>>>>>>>>>{self.semantic_stack}')
         # print("^^^^^^^^")
         op2_id_type = self.sspop()
         op2_el_type = self.sspop()
@@ -193,11 +192,11 @@ class CodeGen:
         op1_id_type = self.sspop()
         op1_el_type = self.sspop()
         op1_addr = self.sspop()
-
-        if self.error_detected:
+        # print(f'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>{op1_id_type} , {op2_id_type}')
+        if op1_id_type is None or op2_id_type is None:
             self.semantic_stack.extend((None, None, None))
-
-        elif op1_el_type == 'arr' or op2_el_type == 'arr':
+        # if op1_el_type == 'arr' or op2_el_type == 'arr':
+        elif op1_el_type == 'arr' or op2_el_type == 'arr' or op1_el_type == 'parr' or op2_el_type == 'parr':
             self.semantic_errors.append(
                 F'#{self.parser.scanner.line} : Semantic Error! Type mismatch in operands, Got array instead of int.')
 
@@ -218,6 +217,7 @@ class CodeGen:
 
     def push(self):
         self.semantic_stack.append(self.parser.current_token_full.lexeme)
+        # print(self.parser.scanner.current_token)
         # print(f'>>>>>>>>>>>> {self.semantic_stack}')
 
     def pop3(self):
@@ -229,6 +229,8 @@ class CodeGen:
 
     def pnum(self):
         self.semantic_stack.extend((F'#{self.parser.current_token_full.lexeme}', 'var', 'int'))
+        # print('salam')
+        # print(self.semantic_stack)
 
     def assign(self):
         rhs_id_type = self.sspop()
@@ -461,6 +463,16 @@ class CodeGen:
             self.function_arg.clear()
             return
 
+        if self.fun_memory is None:
+            # self.semantic_errors.append(
+                # F'#{self.parser.scanner.line} : Semantic Error! Undefined function called.')
+
+            self.semantic_stack.extend((None, None, None))
+            self.error_detected = True
+
+            self.function_arg.clear()
+            return
+
         params = list(map(lambda x: (x.address, x.el_type, x.id_type), self.fun_memory.extra['params']))
 
         if len(params) != len(self.function_arg):
@@ -474,6 +486,7 @@ class CodeGen:
             return
 
         transform = {'pvar': 'int', 'var': 'int', 'arr': 'array', 'parr': 'array'}
+        # print(self.parser.scanner.current_token)
         diff = [
             (i, transform[x[1]], transform[y[1]]) for i, (x, y) in enumerate(zip(params, self.function_arg), start=1)
         ]
@@ -495,8 +508,14 @@ class CodeGen:
 
         self.function_arg.clear()
 
-    def call_function(self, lexeme):
+    def reset_args(self):
+        pass
 
+
+    def call_function(self, lexeme):
+        # print(self.fun_memory.extra.keys())
+        # print(self.parser.scanner.current_token)
+        # print(self.fun_memory.extra['line'])
         jump, address = self.fun_memory.extra["line"], self.stack_manager.get_temporary()
         x = len(self.program_block) + 2 * len(self.function_arg) + 11
 
@@ -538,6 +557,7 @@ class CodeGen:
     def add_args(self):
         x3, x2, x1 = \
             self.sspop(), self.sspop(), self.sspop()
+        # print('dorsaaa', x1,x2,x3)
 
         self.function_arg.append((x1, x2, x3))
 
@@ -553,7 +573,7 @@ class CodeGen:
             self.error_detected = True
 
     def end_program(self):
-        print("end program ...")
+        # print("end program ...")
         level, self.fun_memory = self.stack_manager.activation.get_variable('main')
         self.call_function('main')
 

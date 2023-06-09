@@ -44,6 +44,7 @@ def transition(self):
                 strings = transition_symbol_full.split("#")
                 transition_symbol = strings[0]
                 action = strings[1]
+                # print(action)
                 selected_function = getattr(code_generator, action)
                 # Call the selected function
                 selected_function()
@@ -60,6 +61,7 @@ def transition(self):
             strings = transition_symbol_full.split("#")
             transition_symbol = strings[0]
             action = strings[1]
+            # print(action)
             selected_function = getattr(code_generator, action)
             # Call the selected function
             selected_function()
@@ -116,7 +118,7 @@ class Parser:
         self.diagram_stack.append(self.current_diagram)
         self.root = self.current_diagram.parser_node
         while self.diagram_stack:
-            print(self.current_diagram.name)
+            # print(self.current_diagram.name)
             # print(self.current_diagram.current_state)
             # print(self.current_token)
             if self.EOF:
