@@ -44,10 +44,7 @@ def transition(self):
                 strings = transition_symbol_full.split("#")
                 transition_symbol = strings[0]
                 action = strings[1]
-                # print(action)
-                selected_function = getattr(code_generator, action)
-                # Call the selected function
-                selected_function()
+                eval(f'code_generator.{action}()')
             else:
                 transition_symbol = transition_symbol_full
             self.current_state = self.states[self.current_state][transition_symbol_full]
@@ -61,10 +58,7 @@ def transition(self):
             strings = transition_symbol_full.split("#")
             transition_symbol = strings[0]
             action = strings[1]
-            # print(action)
-            selected_function = getattr(code_generator, action)
-            # Call the selected function
-            selected_function()
+            eval(f'code_generator.{action}()')
         else:
             transition_symbol = transition_symbol_full
         if is_terminal(transition_symbol) or transition_symbol == 'EPS':
