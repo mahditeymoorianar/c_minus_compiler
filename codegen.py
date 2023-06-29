@@ -65,7 +65,7 @@ class CodeGen:
         self.func_stack = []
         self.error_detected = False
         self.parser = parser
-        self.fun_memory = None
+        self.fun_memory = []
         self.stack_manager = StackManager()
 
     def sspop(self):
@@ -105,7 +105,7 @@ class CodeGen:
 
         elif row.el_type == 'fun':
             self.semantic_stack += [None, row.lexeme, row.id_type]
-            self.fun_memory = row
+            self.fun_memory += [row]
 
         else:
 
@@ -344,13 +344,24 @@ class CodeGen:
     def function_return(self):
         self.sspop(); self.sspop()
         addr = self.sspop()
-
+        print(f'addr = {addr}')
         if self.error_detected:
             return
 
         temp = self.stack_manager.get_temporary()
         self.program_block.append(CodeWriter.add(MACHINE_CONTAINER, f'#{MACHINE_WORD_SIZE}', temp))
         self.program_block.append(CodeWriter.assign(addr, f'@{temp}'))
+
+    def fun_return(self):
+
+        if 0 < len(self.func_stack):
+            self.func_stack[-1].append(len(self.program_block))
+            self.program_block.append(CodeWriter.returning())
+        else:
+            self.semantic_errors.append(
+                f"#{self.parser.scanner.line}: Semantic Error! No 'function' found for 'return'.")
+
+            self.error_detected = True
 
     def scope_break(self):
         if 0 < len(self.loops_stack):
@@ -394,7 +405,7 @@ class CodeGen:
             self.function_arg.clear()
             return
 
-        if self.fun_memory is None:
+        if len(self.fun_memory) == 0:
             # self.semantic_errors.append(
             # f'#{self.parser.scanner.line}: Semantic Error! Undefined function called.')
 
@@ -404,7 +415,7 @@ class CodeGen:
             self.function_arg.clear()
             return
 
-        params = list(map(lambda x: (x.address, x.el_type, x.id_type), self.fun_memory.extra['params']))
+        params = list(map(lambda x: (x.address, x.el_type, x.id_type), self.fun_memory[-1].extra['params']))
 
         if len(params) != len(self.function_arg):
             self.semantic_errors.append(
@@ -432,12 +443,16 @@ class CodeGen:
             self.error_detected = True
 
         else:
-
-            self.semantic_stack.extend((self.call_function(lexeme), 'var', self.fun_memory.id_type))
+            result = self.call_function(lexeme)
+            print(f'result : {lexeme}({params}) = {result}')
+            print(f'fun_memory = {self.fun_memory[-1]}')
+            self.semantic_stack.extend((result, 'var', self.fun_memory[-1].id_type))
+            print(f'semantic stack : {self.semantic_stack}')
             for at_address, level, row_address in self.fun_refresh[-1]:
                 self.indirect_address(level, row_address, at_address[1:])
 
         self.function_arg.clear()
+        self.fun_memory.pop();
 
     def reset_args(self):
         pass
@@ -446,7 +461,7 @@ class CodeGen:
         # print(self.fun_memory.extra.keys())
         # print(self.parser.scanner.current_token)
         # print(self.fun_memory.extra['line'])
-        jump, address = self.fun_memory.extra["line"], self.stack_manager.get_temporary()
+        jump, address = self.fun_memory[-1].extra["line"], self.stack_manager.get_temporary()
         x = len(self.program_block) + 2 * len(self.function_arg) + 11
 
         self.program_block.append(CodeWriter.assign(COUNTER_REGISTER0, address))
@@ -491,21 +506,11 @@ class CodeGen:
 
         self.function_arg.append((x1, x2, x3))
 
-    def fun_return(self):
-
-        if 0 < len(self.func_stack):
-            self.func_stack[-1].append(len(self.program_block))
-            self.program_block.append(CodeWriter.returning())
-        else:
-            self.semantic_errors.append(
-                f"#{self.parser.scanner.line}: Semantic Error! No 'function' found for 'return'.")
-
-            self.error_detected = True
-
     def end_program(self):
         # print("end program ...")
         try:
-            level, self.fun_memory = self.stack_manager.activation.get_variable('main')
+            level, funmem = self.stack_manager.activation.get_variable('main')
+            self.fun_memory += [funmem]
             self.call_function('main')
         except:
             pass
@@ -552,6 +557,8 @@ class Activation:
                 self.no_args = no_args
                 self.id_type = id_type
                 self.address = address
+                # print(f"IDMem init : {self.lexeme}, address = {self.address}, el_type = {self.el_type}, "
+                #       f"no_args = {self.no_args}, id_type = {self.id_type}, scope = {self.scope}, extra = {self.extra}")
 
             def __str__(self):
                 return f"({self.lexeme},{self.address})"
@@ -594,12 +601,15 @@ class Activation:
     def get_variable(self, lexeme):
         memory = self.scope.get_identifier(lexeme)
         if memory:
+            # print(f'get_variable({lexeme}) : (0, {memory}) in {self}')
             return 0, memory
 
         if self.pro_parent:
             num, memory = self.pro_parent.get_variable(lexeme)
+            # print(f'get_variable({lexeme}) : ({num + 1}, {memory}) in {self}')
             return num + 1, memory
 
+        # print(f'get_variable({lexeme}) : (0, None) in {self}')
         return 0, None
 
     def deep_scope(self):

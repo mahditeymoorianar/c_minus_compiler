@@ -44,6 +44,7 @@ def transition(self):
                 strings = transition_symbol_full.split("#")
                 transition_symbol = strings[0]
                 action = strings[1]
+                # print(f'code_generator.{action}()')
                 eval(f'code_generator.{action}()')
             else:
                 transition_symbol = transition_symbol_full
@@ -58,6 +59,7 @@ def transition(self):
             strings = transition_symbol_full.split("#")
             transition_symbol = strings[0]
             action = strings[1]
+            # print(f'code_generator.{action}()')
             eval(f'code_generator.{action}()')
         else:
             transition_symbol = transition_symbol_full

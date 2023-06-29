@@ -1,6 +1,6 @@
 class Charsets:
     digit = set("1234567890")
-    letter = set("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")
+    letter = set("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_")
     whitespace = set("\f\n\v\t\r \0")
     symbol = set("-+=:;,[]{}()<*/")
     all = digit.union(letter).union(whitespace).union(symbol)
