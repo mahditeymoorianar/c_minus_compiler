@@ -1,11 +1,27 @@
-/*==== Sample MTA ====*/
-void main (void) {
-    int a;
-    int b;
-    f();
-    a = a + b;
+int f(int n) {
+    if (n == 1) {
+        return 1;
+    } else if (n == 2) {
+        return 2;
+    } else {
+        return f(n-1) + f(n-2);
+    }
 }
-int f(void) {
-    int a;
-    return a;
+
+int g(int n) {
+    if (n == 1) {
+        return 1;
+    } else {
+        return g(n-1) + g(n-1);
+    }
+}
+
+void main(void) {
+    output(g(1));
+    output(g(2));
+    output(g(3));
+    output(g(4));
+    output(g(5));
+    output(g(6));
+
 }

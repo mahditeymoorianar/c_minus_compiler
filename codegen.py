@@ -1,5 +1,7 @@
+MACHINE_FUN_RESULTS = 60000
 MACHINE_PARAMETER = 45000
 MACHINE_FUN_INDEX = 41000
+MACHINE_SP = 36000
 MACHINE_CONTAINER = 400
 MACHINE_WORD_SIZE = 4
 
@@ -20,6 +22,8 @@ class StackManager:
     def high_activation(self): self.activation = self.activation.pro_parent
 
     def get_temporary(self): return self.reg.get_temporary()
+
+    def get_result(self): return self.reg.get_result()
 
     def get_parameter(self): return self.reg.get_parameter() - self.rbp_proc
 
@@ -77,6 +81,7 @@ class CodeGen:
         # f'(ASSIGN, #{rbp}, {MACHINE_CONTAINER})'
         self.program_block.append(CodeWriter.assign(f'#{rbp}', MACHINE_CONTAINER))
         self.program_block.append(CodeWriter.assign(f'#{rbp}', COUNTER_REGISTER0))
+        self.program_block.append(CodeWriter.assign(f'#{MACHINE_FUN_RESULTS}', MACHINE_SP))
 
     def pid(self, lexeme=None):
 
@@ -443,10 +448,13 @@ class CodeGen:
             self.error_detected = True
 
         else:
-            result = self.call_function(lexeme)
-            print(f'result : {lexeme}({params}) = {result}')
+            self.call_function(lexeme)
+            temp = self.stack_manager.get_temporary()
+            self.program_block.append(CodeWriter.assign(f'{MACHINE_SP}', f'{temp}'))
+            self.program_block.append(CodeWriter.add(f'{MACHINE_SP}', f'#{MACHINE_WORD_SIZE * 1}', f'{MACHINE_SP}'))
+            # print(f'result : {lexeme}({params}) = {result}')
             print(f'fun_memory = {self.fun_memory[-1]}')
-            self.semantic_stack.extend((result, 'var', self.fun_memory[-1].id_type))
+            self.semantic_stack.extend((f'@{MACHINE_SP}', 'var', self.fun_memory[-1].id_type))
             print(f'semantic stack : {self.semantic_stack}')
             for at_address, level, row_address in self.fun_refresh[-1]:
                 self.indirect_address(level, row_address, at_address[1:])
@@ -490,14 +498,17 @@ class CodeGen:
 
         self.program_block.append(CodeWriter.jump(jump))
 
-        result = self.stack_manager.get_temporary()
-        self.program_block.append(CodeWriter.add(MACHINE_CONTAINER, f'#{MACHINE_WORD_SIZE * 1}', result))
-        self.program_block.append(CodeWriter.assign(f'@{result}', result))
+        # result = self.stack_manager.get_result()
+        t = self.stack_manager.get_temporary()
+        # self.program_block.append(CodeWriter.assign(f'{MACHINE_SP}', f'{result}'))
+        self.program_block.append(CodeWriter.add(MACHINE_CONTAINER, f'#{MACHINE_WORD_SIZE * 1}', t))
+        self.program_block.append(CodeWriter.assign(f'@{t}', f'@{MACHINE_SP}'))
+
 
         temp = self.stack_manager.get_temporary()
         self.program_block.append(CodeWriter.add(MACHINE_CONTAINER, f'#{2 * MACHINE_WORD_SIZE}', temp))
         self.program_block.append(CodeWriter.assign(f'@{temp}', MACHINE_CONTAINER))
-        return result
+        # return MACHINE_SP
 
     def add_args(self):
         x3, x2, x1 = \
@@ -507,7 +518,7 @@ class CodeGen:
         self.function_arg.append((x1, x2, x3))
 
     def end_program(self):
-        # print("end program ...")
+        print("end program ...")
         try:
             level, funmem = self.stack_manager.activation.get_variable('main')
             self.fun_memory += [funmem]
@@ -531,6 +542,7 @@ class CodeGen:
 class Register:
     rsp_temp = MACHINE_PARAMETER
     rsp_proc = MACHINE_CONTAINER
+    rsp_result = MACHINE_FUN_RESULTS
 
     def __init__(self):
         self.return_address = self.get_parameter()
@@ -543,6 +555,10 @@ class Register:
 
     def get_temporary(self):
         out, self.rsp_temp = self.rsp_temp, self.rsp_temp + MACHINE_WORD_SIZE
+        return out
+
+    def get_result(self):
+        out, self.rsp_result = self.rsp_result, self.rsp_result + MACHINE_WORD_SIZE
         return out
 
 
